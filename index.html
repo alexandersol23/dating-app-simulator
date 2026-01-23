@@ -205,22 +205,97 @@
   // ---- 2) Profiles (15) ----
   // Replace img URLs with your AI image URLs (direct links like https://i.imgur.com/xxxx.png)
   const PROFILES = [
-    {id:"p01", name:"Alex",   age:21, img:"https://i.imgur.com/fOCWnxj.png", bio:["🏄 Beach days & beginner surf lessons.","🎧 Indie pop, sunset walks."]},
-    {id:"p02", name:"Ethan",  age:22, img:"https://i.imgur.com/REPLACE02.png", bio:["☕ Espresso nerd.","📚 Late-night library regular."]},
-    {id:"p03", name:"Ryan",   age:20, img:"https://i.imgur.com/REPLACE03.png", bio:["📸 Street photography.","🥟 Dumplings over desserts."]},
-    {id:"p04", name:"Noah",   age:23, img:"https://i.imgur.com/REPLACE04.png", bio:["🏀 Pickup hoops.","🍜 Serious ramen opinions."]},
-    {id:"p05", name:"Lucas",  age:21, img:"https://i.imgur.com/REPLACE05.png", bio:["🧗 Bouldering beginner.","🎬 Movie-night loyalist."]},
-    {id:"p06", name:"Jay",    age:24, img:"https://i.imgur.com/REPLACE06.png", bio:["🎧 Vinyl collector.","🚶 Long walks > loud bars."]},
-    {id:"p07", name:"Ben",    age:22, img:"https://i.imgur.com/REPLACE07.png", bio:["🌲 Weekend hikes.","📖 Nonfiction binge reader."]},
-    {id:"p08", name:"Chris",  age:21, img:"https://i.imgur.com/REPLACE08.png", bio:["🎮 Casual gamer.","🍕 Pineapple defender."]},
-    {id:"p09", name:"Leo",    age:23, img:"https://i.imgur.com/REPLACE09.png", bio:["📐 Architecture major.","☕ Oat milk only."]},
-    {id:"p10", name:"Sam",    age:20, img:"https://i.imgur.com/REPLACE10.png", bio:["🎸 Learning guitar.","🌌 Night-sky photos."]},
-    {id:"p11", name:"Aaron",  age:24, img:"https://i.imgur.com/REPLACE11.png", bio:["🏋️ Gym regular.","🥗 Learning to cook."]},
-    {id:"p12", name:"Daniel", age:22, img:"https://i.imgur.com/REPLACE12.png", bio:["🎤 Karaoke confidence.","🧠 Psychology curious."]},
-    {id:"p13", name:"Mark",   age:23, img:"https://i.imgur.com/REPLACE13.png", bio:["🚲 City biking.","📻 Podcast hoarder."]},
-    {id:"p14", name:"Owen",   age:21, img:"https://i.imgur.com/REPLACE14.png", bio:["🖼️ Gallery hopping.","🧋 Matcha > coffee."]},
-    {id:"p15", name:"Tyler",  age:22, img:"https://i.imgur.com/REPLACE15.png", bio:["🎾 Casual tennis.","🌍 Weekend trip planner."]},
-  ];
+  {
+    id:"p01", name:"Alex", age:21, img:"https://i.imgur.com/fOCWnxj.png",
+    bio:[
+      "Still figuring out what I want, but I know I like the ocean, quiet mornings, and people who don’t take themselves too seriously."
+    ]
+  },
+  {
+    id:"p02", name:"Ethan", age:22, img:"https://i.imgur.com/REPLACE02.png",
+    bio:[
+      "I run on coffee and deadlines. Probably overthinking this bio. If you have a favorite café, I want to hear about it."
+    ]
+  },
+  {
+    id:"p03", name:"Ryan", age:20, img:"https://i.imgur.com/REPLACE03.png",
+    bio:[
+      "Into photography lately. Mostly streets, sometimes people. Bad at posing, better behind the camera."
+    ]
+  },
+  {
+    id:"p04", name:"Noah", age:23, img:"https://i.imgur.com/REPLACE04.png",
+    bio:[
+      "Grew up playing basketball, still do when I can. Trying to learn how to cook something other than pasta."
+    ]
+  },
+  {
+    id:"p05", name:"Lucas", age:21, img:"https://i.imgur.com/REPLACE05.png",
+    bio:[
+      "Climbing gyms scare me a little but I keep going back. Movie nights > parties, most of the time."
+    ]
+  },
+  {
+    id:"p06", name:"Jay", age:24, img:"https://i.imgur.com/REPLACE06.png",
+    bio:[
+      "I like long walks, vinyl records, and conversations that drift a bit. Not great at small talk, better after the second coffee."
+    ]
+  },
+  {
+    id:"p07", name:"Ben", age:22, img:"https://i.imgur.com/REPLACE07.png",
+    bio:[
+      "Usually outdoors on weekends if the weather cooperates. Reads a lot, remembers very little of it."
+    ]
+  },
+  {
+    id:"p08", name:"Chris", age:21, img:"https://i.imgur.com/REPLACE08.png",
+    bio:[
+      "Pretty laid-back. I like games, late-night snacks, and people who laugh easily."
+    ]
+  },
+  {
+    id:"p09", name:"Leo", age:23, img:"https://i.imgur.com/REPLACE09.png",
+    bio:[
+      "Architecture student. Always noticing buildings, probably judging them. Coffee order is boring but reliable."
+    ]
+  },
+  {
+    id:"p10", name:"Sam", age:20, img:"https://i.imgur.com/REPLACE10.png",
+    bio:[
+      "Learning guitar very slowly. If you have song recommendations, that’s already a good start."
+    ]
+  },
+  {
+    id:"p11", name:"Aaron", age:24, img:"https://i.imgur.com/REPLACE11.png",
+    bio:[
+      "Trying to be more consistent at the gym and less consistent with takeout. Mixed results so far."
+    ]
+  },
+  {
+    id:"p12", name:"Daniel", age:22, img:"https://i.imgur.com/REPLACE12.png",
+    bio:[
+      "People say I’m confident because I like karaoke. The truth is I just commit once I’m already on stage."
+    ]
+  },
+  {
+    id:"p13", name:"Mark", age:23, img:"https://i.imgur.com/REPLACE13.png",
+    bio:[
+      "I bike everywhere and listen to too many podcasts. Ask me what I’m listening to this week."
+    ]
+  },
+  {
+    id:"p14", name:"Owen", age:21, img:"https://i.imgur.com/REPLACE14.png",
+    bio:[
+      "Big fan of quiet galleries and noisy bubble tea places. Still undecided which one I like more."
+    ]
+  },
+  {
+    id:"p15", name:"Tyler", age:22, img:"https://i.imgur.com/REPLACE15.png",
+    bio:[
+      "Not great at bios. Better in person. I like tennis, short trips, and spontaneous plans that actually work out."
+    ]
+  }
+];
 
   // ---- 3) Inbox (6 replies) ----
   // You can edit these to match your profiles/vibe.
