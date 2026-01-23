@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dating App Simulator</title>
+  <style>
+    :root { --card: #fff; --border: rgba(0,0,0,.12); --shadow: rgba(0,0,0,.10); }
+    body{
+      margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:#f6f6f7; padding:18px;
+    }
+    .phone{
+      width:min(420px, 96vw);
+      background:#fff; border:1px solid var(--border);
+      border-radius:22px; overflow:hidden;
+      box-shadow:0 16px 40px var(--shadow);
+    }
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 14px; border-bottom:1px solid rgba(0,0,0,.08);
+      background:#fff;
+    }
+    .topbar .title{ font-weight:800; letter-spacing:.2px; }
+    .chip{
+      font-size:12px; opacity:.75; border:1px solid rgba(0,0,0,.12);
+      padding:6px 10px; border-radius:999px;
+    }
+    .photo{
+      width:100%; aspect-ratio:4/5; background:#eee; position:relative;
+    }
+    .photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .info{ padding:12px 14px 10px 14px; }
+    .nameage{ font-size:22px; font-weight:900; margin:0; }
+    .bio{ margin:8px 0 0 0; font-size:14px; line-height:1.35; opacity:.9; }
+    .panel{
+      padding:12px 14px 14px 14px; border-top:1px solid rgba(0,0,0,.08);
+      background:#fff;
+    }
+    textarea{
+      width:100%; box-sizing:border-box; border:1px solid rgba(0,0,0,.18);
+      border-radius:14px; padding:10px 12px; font-size:14px; resize:none; outline:none;
+    }
+    textarea:focus{ border-color: rgba(0,0,0,.35); }
+    .row{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:10px; }
+    .count{ font-size:12px; opacity:.65; }
+    .btns{ display:flex; gap:10px; }
+    button{
+      border:none; border-radius:999px; padding:10px 14px; font-weight:800; cursor:pointer;
+    }
+    .pass{ background:rgba(0,0,0,.06); }
+    .like{ background:#111; color:#fff; }
+    .done{
+      width:100%; margin-top:10px; background:#2d6cdf; color:#fff;
+      border-radius:14px; padding:12px 14px;
+    }
+    .hint{ font-size:12px; opacity:.7; margin-top:10px; line-height:1.3; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="topbar">
+      <div class="title">Discover</div>
+      <div class="chip" id="condChip">condition: (none)</div>
+    </div>
+
+    <div class="photo">
+      <img id="img" src="https://i.imgur.com/fOCWnxj.png" alt="Profile photo">
+    </div>
+
+    <div class="info">
+      <p class="nameage" id="nameage">Alex, 21</p>
+      <p class="bio" id="bio">🏄 Beach days & beginner surf lessons.<br>🎧 Indie pop + coffee walks.</p>
+    </div>
+
+    <div class="panel">
+      <textarea id="msg" rows="3" maxlength="240" placeholder="Message Alex (optional)…"></textarea>
+      <div class="row">
+        <div class="count" id="count">0/240</div>
+        <div class="btns">
+          <button class="pass" id="passBtn" type="button">Swipe Left</button>
+          <button class="like" id="likeBtn" type="button">Swipe Right</button>
+        </div>
+      </div>
+
+      <button class="done" id="finishBtn" type="button" disabled>Finish & return to survey</button>
+      <div class="hint">
+        This demo records your swipe + optional message and sends it back to Qualtrics via the URL.
+      </div>
+    </div>
+  </div>
+
+<script>
+  // 1) Read query params from Qualtrics (e.g., ?condition=active_high&return=QUALTRICS_LINK)
+  const params = new URLSearchParams(location.search);
+  const condition = params.get("condition") || "none";
+  const returnUrl = params.get("return"); // your Qualtrics survey link
+
+  document.getElementById("condChip").textContent = `condition: ${condition}`;
+
+  // 2) Track actions
+  let swipe = "";
+  const msgEl = document.getElementById("msg");
+  const countEl = document.getElementById("count");
+  const finishBtn = document.getElementById("finishBtn");
+
+  msgEl.addEventListener("input", () => {
+    countEl.textContent = `${msgEl.value.length}/240`;
+  });
+
+  function chooseSwipe(val){
+    swipe = val; // "left" or "right"
+    finishBtn.disabled = false;
+  }
+
+  document.getElementById("passBtn").addEventListener("click", () => chooseSwipe("left"));
+  document.getElementById("likeBtn").addEventListener("click", () => chooseSwipe("right"));
+
+  // 3) Send data back to Qualtrics (redirect with querystring)
+  finishBtn.addEventListener("click", () => {
+    if (!returnUrl) {
+      alert("Missing return URL. Add &return=YOUR_QUALTRICS_SURVEY_LINK to the iframe URL.");
+      return;
+    }
+    const message = (msgEl.value || "").trim();
+
+    // Encode values safely
+    const q = new URLSearchParams({
+      condition,
+      swipe_p01: swipe,
+      msg_p01: message
+    });
+
+    // Redirect back to Qualtrics: it will capture these into Embedded Data
+    location.href = `${returnUrl}${returnUrl.includes("?") ? "&" : "?"}${q.toString()}`;
+  });
+</script>
+</body>
+</html>
+<!-- saved -->
