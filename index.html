@@ -7,144 +7,289 @@
 
   <style>
     :root { --border: rgba(0,0,0,.12); --shadow: rgba(0,0,0,.10); }
+
     body{
       margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
       background:#f6f6f7; padding:18px;
     }
+
     .phone{
       width:min(420px, 96vw);
-      background:#fff; border:1px solid var(--border);
-      border-radius:22px; overflow:hidden;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:22px;
+      overflow:hidden;
       box-shadow:0 16px 40px var(--shadow);
     }
+
     .topbar{
       display:flex; justify-content:space-between; align-items:center;
-      padding:14px; border-bottom:1px solid rgba(0,0,0,.08);
+      padding:14px;
+      border-bottom:1px solid rgba(0,0,0,.08);
       font-weight:800;
+      background:#fff;
     }
+
     .progress{
       font-size:12px; opacity:.7;
       border:1px solid rgba(0,0,0,.12);
       padding:6px 10px; border-radius:999px;
+      white-space:nowrap;
     }
+
     .photo{ width:100%; aspect-ratio:4/5; background:#eee; }
-    .photo img{ width:100%; height:100%; object-fit:cover; }
+    .photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+
     .info{ padding:12px 14px 10px; }
     .nameage{ font-size:22px; font-weight:900; margin:0; }
-    .bio{ margin-top:8px; font-size:14px; line-height:1.35; opacity:.9; }
+    .bio{ margin:8px 0 0 0; font-size:14px; line-height:1.35; opacity:.9; }
+
     .panel{
-      padding:14px; border-top:1px solid rgba(0,0,0,.08);
+      padding:14px;
+      border-top:1px solid rgba(0,0,0,.08);
+      background:#fff;
     }
+
+    /* ✅ Fixes the “too wide / overflow” issue */
     textarea{
-      width:100%; border:1px solid rgba(0,0,0,.18);
-      border-radius:14px; padding:12px;
-      font-size:14px; resize:none;
+      width:100%;
+      box-sizing:border-box;   /* critical */
+      display:block;           /* avoid inline weirdness */
+      border:1px solid rgba(0,0,0,.18);
+      border-radius:14px;
+      padding:12px;
+      font-size:14px;
+      resize:none;
+      outline:none;
+      margin:0;                /* avoid default margins */
+      max-width:100%;          /* belt + suspenders */
     }
-    .done{
-      width:100%; margin-top:12px;
-      background:#2d6cdf; color:#fff;
-      border:none; border-radius:14px;
-      padding:12px; font-weight:800;
+    textarea:focus{ border-color: rgba(0,0,0,.35); }
+
+    button{
+      width:100%;
+      margin-top:12px;
+      background:#2d6cdf;
+      color:#fff;
+      border:none;
+      border-radius:14px;
+      padding:12px;
+      font-weight:800;
       opacity:.55;
     }
-    .done.enabled{ opacity:1; cursor:pointer; }
-    .hint{ font-size:12px; opacity:.7; margin-top:10px; }
+    button.enabled{ opacity:1; cursor:pointer; }
+
+    .hint{ font-size:12px; opacity:.7; margin-top:10px; line-height:1.3; }
+
+    /* Inbox styles */
+    .inboxHeader{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(0,0,0,.08);
+      font-weight:900;
+      background:#fff;
+    }
+    .thread{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(0,0,0,.06);
+      background:#fff;
+    }
+    .threadTop{
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      margin-bottom:6px;
+    }
+    .threadName{ font-weight:900; }
+    .threadTime{ font-size:12px; opacity:.6; white-space:nowrap; }
+    .threadMsg{ font-size:13px; opacity:.9; line-height:1.25; }
+    .badge{
+      display:inline-block;
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.12);
+      opacity:.8;
+      margin-left:8px;
+      vertical-align:middle;
+    }
   </style>
 </head>
 
 <body>
   <div class="phone">
+
     <div class="topbar">
-      <div>Discover</div>
-      <div class="progress" id="progress">1 / 20</div>
+      <div id="title">Discover</div>
+      <div class="progress" id="progress">1 / 15</div>
     </div>
 
-    <div class="photo">
-      <img id="img" src="">
+    <!-- PROFILE VIEW -->
+    <div id="profileView">
+      <div class="photo">
+        <img id="img" src="" alt="Profile photo">
+      </div>
+
+      <div class="info">
+        <p class="nameage" id="nameage"></p>
+        <p class="bio" id="bio"></p>
+      </div>
+
+      <div class="panel">
+        <textarea id="msg" rows="3" maxlength="240" placeholder="Write a message…"></textarea>
+        <button id="nextBtn" disabled>Send message & continue</button>
+        <div class="hint">Please send a message before continuing.</div>
+      </div>
     </div>
 
-    <div class="info">
-      <p class="nameage" id="nameage"></p>
-      <p class="bio" id="bio"></p>
+    <!-- INBOX VIEW (after 15 profiles) -->
+    <div id="inboxView" style="display:none;">
+      <div class="inboxHeader">
+        Inbox <span class="badge">6 replies</span>
+      </div>
+
+      <div id="threads"></div>
+
+      <div class="panel">
+        <button id="continueBtn" class="enabled" style="opacity:1; cursor:pointer; margin-top:0;">
+          Continue
+        </button>
+        <div class="hint">You can now continue to the next part of the study.</div>
+      </div>
     </div>
 
-    <div class="panel">
-      <textarea id="msg" rows="3" placeholder="Write a message…"></textarea>
-      <button id="nextBtn" class="done" disabled>Send message & continue</button>
-      <div class="hint">Please send a message before continuing.</div>
-    </div>
   </div>
 
 <script>
+  // ---- 1) Config ----
+  const params = new URLSearchParams(location.search);
+  const returnUrl = params.get("return"); // required for final redirect
+
+  // ---- 2) Profiles (15) ----
+  // Replace img URLs with your AI image URLs (direct links like https://i.imgur.com/xxxx.png)
   const PROFILES = [
-    {id:"p01", name:"Alex",  age:21, img:"https://i.imgur.com/fOCWnxj.png", bio:["🏄 Beach days & beginner surf lessons.","🎧 Indie pop, sunset walks."]},
-    {id:"p02", name:"Ethan", age:22, img:"https://i.imgur.com/REPLACE02.png", bio:["☕ Espresso nerd.","📚 Late-night library regular."]},
-    {id:"p03", name:"Ryan",  age:20, img:"https://i.imgur.com/REPLACE03.png", bio:["📸 Street photography.","🥟 Dumplings over desserts."]},
-    {id:"p04", name:"Noah",  age:23, img:"https://i.imgur.com/REPLACE04.png", bio:["🏀 Pickup hoops.","🍜 Serious ramen opinions."]},
-    {id:"p05", name:"Lucas", age:21, img:"https://i.imgur.com/REPLACE05.png", bio:["🧗 Bouldering beginner.","🎬 Movie-night loyalist."]},
-    {id:"p06", name:"Jay",   age:24, img:"https://i.imgur.com/REPLACE06.png", bio:["🎧 Vinyl collector.","🚶 Long walks > loud bars."]},
-    {id:"p07", name:"Ben",   age:22, img:"https://i.imgur.com/REPLACE07.png", bio:["🌲 Weekend hikes.","📖 Nonfiction binge reader."]},
-    {id:"p08", name:"Chris", age:21, img:"https://i.imgur.com/REPLACE08.png", bio:["🎮 Casual gamer.","🍕 Pineapple defender."]},
-    {id:"p09", name:"Leo",   age:23, img:"https://i.imgur.com/REPLACE09.png", bio:["📐 Architecture major.","☕ Oat milk only."]},
-    {id:"p10", name:"Sam",   age:20, img:"https://i.imgur.com/REPLACE10.png", bio:["🎸 Learning guitar.","🌌 Night-sky photos."]},
-    {id:"p11", name:"Aaron", age:24, img:"https://i.imgur.com/REPLACE11.png", bio:["🏋️ Gym regular.","🥗 Learning to cook."]},
-    {id:"p12", name:"Daniel",age:22, img:"https://i.imgur.com/REPLACE12.png", bio:["🎤 Karaoke confidence.","🧠 Psychology curious."]},
-    {id:"p13", name:"Mark",  age:23, img:"https://i.imgur.com/REPLACE13.png", bio:["🚲 City biking.","📻 Podcast hoarder."]},
-    {id:"p14", name:"Owen",  age:21, img:"https://i.imgur.com/REPLACE14.png", bio:["🖼️ Gallery hopping.","🧋 Matcha > coffee."]},
-    {id:"p15", name:"Tyler", age:22, img:"https://i.imgur.com/REPLACE15.png", bio:["🎾 Casual tennis.","🌍 Solo travel plans."]},
-    {id:"p16", name:"Josh",  age:20, img:"https://i.imgur.com/REPLACE16.png", bio:["🧪 Chem major.","🧠 Overthinks playlists."]},
-    {id:"p17", name:"Henry", age:24, img:"https://i.imgur.com/REPLACE17.png", bio:["🕯️ Slow mornings.","📓 Journaling habit."]},
-    {id:"p18", name:"Victor",age:23, img:"https://i.imgur.com/REPLACE18.png", bio:["🏙️ Night photography.","🚇 Loves train rides."]},
-    {id:"p19", name:"Evan",  age:21, img:"https://i.imgur.com/REPLACE19.png", bio:["🌊 Cold swims.","🧊 Cold brew loyalist."]},
-    {id:"p20", name:"Max",   age:22, img:"https://i.imgur.com/REPLACE20.png", bio:["📦 Minimalist.","🕶️ Quiet confidence."]}
+    {id:"p01", name:"Alex",   age:21, img:"https://i.imgur.com/fOCWnxj.png", bio:["🏄 Beach days & beginner surf lessons.","🎧 Indie pop, sunset walks."]},
+    {id:"p02", name:"Ethan",  age:22, img:"https://i.imgur.com/REPLACE02.png", bio:["☕ Espresso nerd.","📚 Late-night library regular."]},
+    {id:"p03", name:"Ryan",   age:20, img:"https://i.imgur.com/REPLACE03.png", bio:["📸 Street photography.","🥟 Dumplings over desserts."]},
+    {id:"p04", name:"Noah",   age:23, img:"https://i.imgur.com/REPLACE04.png", bio:["🏀 Pickup hoops.","🍜 Serious ramen opinions."]},
+    {id:"p05", name:"Lucas",  age:21, img:"https://i.imgur.com/REPLACE05.png", bio:["🧗 Bouldering beginner.","🎬 Movie-night loyalist."]},
+    {id:"p06", name:"Jay",    age:24, img:"https://i.imgur.com/REPLACE06.png", bio:["🎧 Vinyl collector.","🚶 Long walks > loud bars."]},
+    {id:"p07", name:"Ben",    age:22, img:"https://i.imgur.com/REPLACE07.png", bio:["🌲 Weekend hikes.","📖 Nonfiction binge reader."]},
+    {id:"p08", name:"Chris",  age:21, img:"https://i.imgur.com/REPLACE08.png", bio:["🎮 Casual gamer.","🍕 Pineapple defender."]},
+    {id:"p09", name:"Leo",    age:23, img:"https://i.imgur.com/REPLACE09.png", bio:["📐 Architecture major.","☕ Oat milk only."]},
+    {id:"p10", name:"Sam",    age:20, img:"https://i.imgur.com/REPLACE10.png", bio:["🎸 Learning guitar.","🌌 Night-sky photos."]},
+    {id:"p11", name:"Aaron",  age:24, img:"https://i.imgur.com/REPLACE11.png", bio:["🏋️ Gym regular.","🥗 Learning to cook."]},
+    {id:"p12", name:"Daniel", age:22, img:"https://i.imgur.com/REPLACE12.png", bio:["🎤 Karaoke confidence.","🧠 Psychology curious."]},
+    {id:"p13", name:"Mark",   age:23, img:"https://i.imgur.com/REPLACE13.png", bio:["🚲 City biking.","📻 Podcast hoarder."]},
+    {id:"p14", name:"Owen",   age:21, img:"https://i.imgur.com/REPLACE14.png", bio:["🖼️ Gallery hopping.","🧋 Matcha > coffee."]},
+    {id:"p15", name:"Tyler",  age:22, img:"https://i.imgur.com/REPLACE15.png", bio:["🎾 Casual tennis.","🌍 Weekend trip planner."]},
   ];
 
-  const params = new URLSearchParams(location.search);
-  const returnUrl = params.get("return");
-  let idx = 0;
-  const responses = {};
+  // ---- 3) Inbox (6 replies) ----
+  // You can edit these to match your profiles/vibe.
+  const INBOX_REPLIES = [
+    {name:"Ethan",  time:"Just now",  msg:"Hey! Coffee walks sound perfect — what’s your go-to order?"},
+    {name:"Owen",   time:"1m",        msg:"Matcha fan here too. Any spots you’d recommend around campus?"},
+    {name:"Lucas",  time:"3m",        msg:"Bouldering beginner squad 🤝 what’s the coolest wall you’ve tried so far?"},
+    {name:"Sam",    time:"6m",        msg:"Guitar learner too — what song are you working on right now?"},
+    {name:"Noah",   time:"10m",       msg:"Ramen debate time: tonkotsu or miso? (choose wisely)"},
+    {name:"Tyler",  time:"15m",       msg:"If we planned a quick weekend trip, where are we going first?"}
+  ];
 
-  const img = document.getElementById("img");
-  const nameage = document.getElementById("nameage");
-  const bio = document.getElementById("bio");
-  const msg = document.getElementById("msg");
-  const btn = document.getElementById("nextBtn");
-  const prog = document.getElementById("progress");
+  // ---- 4) State / Elements ----
+  let idx = 0;
+  const responses = {}; // msg_p01...msg_p15
+
+  const profileView = document.getElementById("profileView");
+  const inboxView   = document.getElementById("inboxView");
+
+  const imgEl    = document.getElementById("img");
+  const nameage  = document.getElementById("nameage");
+  const bioEl    = document.getElementById("bio");
+  const msgEl    = document.getElementById("msg");
+  const nextBtn  = document.getElementById("nextBtn");
+  const progEl   = document.getElementById("progress");
 
   function loadProfile() {
     const p = PROFILES[idx];
-    img.src = p.img;
+    imgEl.src = p.img;
     nameage.textContent = `${p.name}, ${p.age}`;
-    bio.innerHTML = p.bio.join("<br>");
-    msg.value = "";
-    btn.disabled = true;
-    btn.classList.remove("enabled");
-    prog.textContent = `${idx+1} / ${PROFILES.length}`;
+    bioEl.innerHTML = p.bio.join("<br>");
+
+    msgEl.value = "";
+    nextBtn.disabled = true;
+    nextBtn.classList.remove("enabled");
+    progEl.textContent = `${idx + 1} / ${PROFILES.length}`;
   }
 
-  msg.addEventListener("input", () => {
-    if (msg.value.trim().length > 0) {
-      btn.disabled = false;
-      btn.classList.add("enabled");
+  msgEl.addEventListener("input", () => {
+    if (msgEl.value.trim().length > 0) {
+      nextBtn.disabled = false;
+      nextBtn.classList.add("enabled");
     } else {
-      btn.disabled = true;
-      btn.classList.remove("enabled");
+      nextBtn.disabled = true;
+      nextBtn.classList.remove("enabled");
     }
   });
 
-  btn.addEventListener("click", () => {
-    responses[`msg_${PROFILES[idx].id}`] = msg.value.trim();
+  nextBtn.addEventListener("click", () => {
+    const p = PROFILES[idx];
+    responses[`msg_${p.id}`] = msgEl.value.trim();
+
     idx++;
+
     if (idx < PROFILES.length) {
       loadProfile();
-    } else {
-      const q = new URLSearchParams(responses);
-      location.href = returnUrl + (returnUrl.includes("?") ? "&" : "?") + q.toString();
+      return;
     }
+
+    // After last profile -> show inbox
+    showInbox();
   });
 
+  function showInbox() {
+    // Switch views
+    profileView.style.display = "none";
+    inboxView.style.display = "block";
+
+    // Update top bar
+    document.getElementById("title").textContent = "Messages";
+    progEl.textContent = ""; // hide progress pill content without removing element
+
+    // Render threads
+    const threads = document.getElementById("threads");
+    threads.innerHTML = "";
+    INBOX_REPLIES.forEach(r => {
+      const div = document.createElement("div");
+      div.className = "thread";
+      div.innerHTML = `
+        <div class="threadTop">
+          <div class="threadName">${escapeHtml(r.name)}</div>
+          <div class="threadTime">${escapeHtml(r.time)}</div>
+        </div>
+        <div class="threadMsg">${escapeHtml(r.msg)}</div>
+      `;
+      threads.appendChild(div);
+    });
+  }
+
+  // Continue -> redirect back to Qualtrics (or whatever returnUrl is)
+  document.getElementById("continueBtn").addEventListener("click", () => {
+    if (!returnUrl) {
+      alert("Missing return URL. Add ?return=YOUR_QUALTRICS_LINK to the simulator URL.");
+      return;
+    }
+    const q = new URLSearchParams(responses);
+    location.href = returnUrl + (returnUrl.includes("?") ? "&" : "?") + q.toString();
+  });
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, s => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    }[s]));
+  }
+
+  // Init
   loadProfile();
 </script>
+
 </body>
 </html>
