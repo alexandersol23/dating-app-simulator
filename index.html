@@ -157,9 +157,34 @@
       <div id="title">Discover</div>
       <div class="progress" id="progress">1 / 15</div>
     </div>
+  <!-- INSTRUCTION VIEW (new) -->
+<div id="introView">
+  <div style="padding:14px;">
+    <div style="font-weight:900; font-size:18px; margin-bottom:10px;">
+      Dating App Messaging Simulation
+    </div>
+
+    <div style="font-size:13px; line-height:1.4; opacity:.9;">
+      You will see a series of profiles. For <strong>each profile</strong>, send <strong>one message</strong>.
+      Your message must be <strong>at least one complete sentence</strong>, and should be based on what you see
+      (photo, bio, age). Anything is okay as long as it feels natural.
+      <br><br>
+      To make this realistic, write as if the person may read your message.
+      After you message everyone, you’ll see an inbox screen with <strong>imagined replies</strong> as feedback.
+    </div>
+
+    <button id="startBtn" class="enabled" style="opacity:1; cursor:pointer; margin-top:14px;">
+      Start
+    </button>
+
+    <div style="font-size:12px; opacity:.7; margin-top:10px; line-height:1.3;">
+      Please complete all messages to continue.
+    </div>
+  </div>
+</div>
 
     <!-- PROFILE VIEW -->
-    <div id="profileView">
+   <div id="profileView" style="display:none;">
       <div class="photo">
         <img id="img" src="" alt="Profile photo">
       </div>
@@ -314,6 +339,13 @@
 
   const profileView = document.getElementById("profileView");
   const inboxView   = document.getElementById("inboxView");
+  const introView   = document.getElementById("introView");
+  const startBtn    = document.getElementById("startBtn");
+  startBtn.addEventListener("click", () => {
+  introView.style.display = "none";
+  profileView.style.display = "block";
+  loadProfile(); // starts profile 1
+});
 
   const imgEl    = document.getElementById("img");
   const nameage  = document.getElementById("nameage");
@@ -415,7 +447,7 @@
   }
 
   // Init
-  loadProfile();
+// Wait for participant to click Start on the intro page
 </script>
 
 </body>
