@@ -142,7 +142,7 @@
   font-size:11px;
   padding:3px 8px;
   border-radius:999px;
-  background:#2d6cdf;
+  background:#e53935;
   color:#fff;
   margin-left:6px;
 }
@@ -187,8 +187,9 @@
 
       <div class="panel">
         <button id="continueBtn" class="enabled" style="opacity:1; cursor:pointer; margin-top:0;">
-          Continue
-        </button>
+      Continue the Study
+      </button>
+
         <div class="hint">You can now continue to the next part of the study.</div>
       </div>
     </div>
@@ -198,7 +199,8 @@
 <script>
   // ---- 1) Config ----
   const params = new URLSearchParams(location.search);
-  const returnUrl = params.get("return"); // required for final redirect
+  const returnUrl = "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_8p4wD7wS8EwXMns";
+ // required for final redirect
 
   // ---- 2) Profiles (15) ----
   // Replace img URLs with your AI image URLs (direct links like https://i.imgur.com/xxxx.png)
@@ -298,8 +300,9 @@
   const div = document.createElement("div");
   div.className = "thread";
 
-  /* Alternate blue / red dots for visual realism */
-  const dotColor = i % 2 === 0 ? "blue" : "red";
+  /* Alternate red dots for visual realism */
+ const dotColor = "red";
+
 
   div.innerHTML = `
     <div class="avatar">
