@@ -82,35 +82,71 @@
 
     .hint{ font-size:12px; opacity:.7; margin-top:10px; line-height:1.3; }
 
-    /* Inbox styles */
-    .inboxHeader{
-      padding:12px 14px;
-      border-bottom:1px solid rgba(0,0,0,.08);
-      font-weight:900;
-      background:#fff;
-    }
-    .thread{
-      padding:12px 14px;
-      border-bottom:1px solid rgba(0,0,0,.06);
-      background:#fff;
-    }
-    .threadTop{
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      margin-bottom:6px;
-    }
-    .threadName{ font-weight:900; }
-    .threadTime{ font-size:12px; opacity:.6; white-space:nowrap; }
-    .threadMsg{ font-size:13px; opacity:.9; line-height:1.25; }
-    .badge{
-      display:inline-block;
-      font-size:11px;
-      padding:3px 8px;
-      border-radius:999px;
-      border:1px solid rgba(0,0,0,.12);
-      opacity:.8;
-      margin-left:8px;
-      vertical-align:middle;
-    }
+    /* Inbox styles (enhanced) */
+.inboxHeader{
+  padding:12px 14px;
+  border-bottom:1px solid rgba(0,0,0,.08);
+  font-weight:900;
+  background:#fff;
+}
+
+.thread{
+  display:flex;
+  gap:12px;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(0,0,0,.06);
+  background:#fff;
+  align-items:flex-start;
+}
+
+.avatar{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#e0e0e0; /* placeholder circle */
+  flex-shrink:0;
+  position:relative;
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  position:absolute;
+  bottom:-2px;
+  right:-2px;
+  border:2px solid #fff;
+}
+
+.dot.blue{ background:#2d6cdf; }
+.dot.red{ background:#e53935; }
+
+.threadBody{
+  flex:1;
+}
+
+.threadTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:4px;
+}
+
+.threadName{ font-weight:900; }
+.threadTime{ font-size:12px; opacity:.6; white-space:nowrap; }
+.threadMsg{ font-size:13px; opacity:.9; line-height:1.25; }
+
+.badge{
+  display:inline-block;
+  font-size:11px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:#2d6cdf;
+  color:#fff;
+  margin-left:6px;
+}
+
   </style>
 </head>
 
@@ -143,8 +179,9 @@
     <!-- INBOX VIEW (after 15 profiles) -->
     <div id="inboxView" style="display:none;">
       <div class="inboxHeader">
-        Inbox <span class="badge">6 replies</span>
-      </div>
+  Inbox <span class="badge">6</span>
+</div>
+
 
       <div id="threads"></div>
 
@@ -257,18 +294,30 @@
     // Render threads
     const threads = document.getElementById("threads");
     threads.innerHTML = "";
-    INBOX_REPLIES.forEach(r => {
-      const div = document.createElement("div");
-      div.className = "thread";
-      div.innerHTML = `
-        <div class="threadTop">
-          <div class="threadName">${escapeHtml(r.name)}</div>
-          <div class="threadTime">${escapeHtml(r.time)}</div>
-        </div>
-        <div class="threadMsg">${escapeHtml(r.msg)}</div>
-      `;
-      threads.appendChild(div);
-    });
+   INBOX_REPLIES.forEach((r, i) => {
+  const div = document.createElement("div");
+  div.className = "thread";
+
+  /* Alternate blue / red dots for visual realism */
+  const dotColor = i % 2 === 0 ? "blue" : "red";
+
+  div.innerHTML = `
+    <div class="avatar">
+      <!-- profile image goes here later -->
+      <div class="dot ${dotColor}"></div>
+    </div>
+
+    <div class="threadBody">
+      <div class="threadTop">
+        <div class="threadName">${escapeHtml(r.name)}</div>
+        <div class="threadTime">${escapeHtml(r.time)}</div>
+      </div>
+      <div class="threadMsg">${escapeHtml(r.msg)}</div>
+    </div>
+  `;
+  threads.appendChild(div);
+});
+
   }
 
   // Continue -> redirect back to Qualtrics (or whatever returnUrl is)
