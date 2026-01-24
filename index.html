@@ -180,11 +180,8 @@
 <body>
   <div class="phone">
 
-    <div class="topbar">
-  <div id="title">
-    Discover
-    <span id="debugCond" style="font-size:12px; opacity:.55; margin-left:8px; font-weight:700;"></span>
-  </div>
+   <div class="topbar">
+  <div id="title">Discover</div>
   <div class="progress" id="progress">1 / 15</div>
 </div>
 
@@ -279,8 +276,6 @@ const returnUrl = params.get("return") ||
 
 const isActive = cond.startsWith("active");
 const isHigh = cond.endsWith("high");
-const debugEl = document.getElementById("debugCond");
-if (debugEl) debugEl.textContent = `(${cond})`;
 
  // required for final redirect
 
@@ -449,22 +444,13 @@ const INBOX_REPLIES = isHigh ? HIGH_REPLIES : LOW_REPLIES;
     profileStartTs = Date.now();
   }
 
-  function isCompleteSentence(text){
-  const t = text.trim();
-  if (t.length < 6) return false; // too short
-  const words = t.split(/\s+/).filter(Boolean);
-  if (words.length < 3) return false; // at least 3 words
-  return /[.!?]$/.test(t); // must end with punctuation
-}
-
 msgEl.addEventListener("input", () => {
-  if (!isActive) return; // passive ignores
+  if (!isActive) return;
 
-  const ok = isCompleteSentence(msgEl.value);
+  const ok = msgEl.value.trim().length > 0; // ✅ anything is ok
   nextBtn.disabled = !ok;
   nextBtn.classList.toggle("enabled", ok);
 });
-
 
   function advanceAfterProfile(){
   idx++;
