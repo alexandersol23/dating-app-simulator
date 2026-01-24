@@ -354,10 +354,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const LOW_REPLIES = [];
 
-  // NOTE: "target=men" means participants saw MEN profiles -> replies should be from WOMEN
-  const INBOX_REPLIES_BASE = isHigh
-    ? (target === "men" ? HIGH_REPLIES_WOMEN : HIGH_REPLIES_MEN)
-    : LOW_REPLIES;
+  // ✅ Replies should come from the SAME profiles the participant viewed
+const INBOX_REPLIES_BASE = isHigh
+  ? (target === "men" ? HIGH_REPLIES_MEN : HIGH_REPLIES_WOMEN)
+  : LOW_REPLIES;
+
 
   // ---- 4) State / Elements ----
   let idx = 0;
