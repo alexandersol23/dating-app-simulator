@@ -201,9 +201,17 @@
       After you message everyone, you’ll see an inbox screen with <strong>imagined replies</strong> as feedback.
     </div>
 
-    <button id="startBtn" class="enabled" style="opacity:1; cursor:pointer; margin-top:14px;">
-      Start
-    </button>
+    <button id="startBtn" type="button" class="enabled" style="opacity:1; cursor:pointer; margin-top:14px;"
+      onclick="
+    document.getElementById('introView').style.display='none';
+    document.getElementById('profileView').style.display='block';
+    if (typeof setupModeUI==='function') setupModeUI();
+    if (typeof loadProfile==='function') loadProfile();
+  "
+>
+  Start
+</button>
+
 
     <div style="font-size:12px; opacity:.7; margin-top:10px; line-height:1.3;">
       Please complete all messages to continue.
