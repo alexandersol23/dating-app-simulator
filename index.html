@@ -529,10 +529,20 @@ const INBOX_REPLIES_BASE = isHigh
   document.getElementById("continueBtn").addEventListener("click", () => {
     responses._meta = { cond, target, rawTarget, ts_end: Date.now() };
 
-    const payload = encodePayload({ cond, target, responses });
-    const sep = returnUrl.includes("?") ? "&" : "?";
-    location.href = returnUrl + sep + "payload=" + payload;
-  });
+const payload = encodePayload({ cond, target, responses });
+const form = document.createElement("form");
+form.method = "POST";
+form.action = returnUrl;
+
+const input = document.createElement("input");
+input.type = "hidden";
+input.name = "payload";
+input.value = payload; // IMPORTANT: no encodeURIComponent here
+
+form.appendChild(input);
+document.body.appendChild(form);
+form.submit();
+});
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, s => ({
