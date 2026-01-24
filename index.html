@@ -372,13 +372,108 @@ const isHigh = cond.endsWith("high");
       "Not great at bios. Better in person. I like tennis, short trips, and spontaneous plans that actually work out."
     ]
   }
+]
+  const PROFILES_WOMEN = [
+  {
+    id:"w01", name:"Emily", age:21, img:"https://i.imgur.com/REPLACE_W01.png",
+    bio:[
+      "Into long walks with podcasts, trying new cafés, and pretending I don’t like reality TV."
+    ]
+  },
+  {
+    id:"w02", name:"Sophia", age:22, img:"https://i.imgur.com/REPLACE_W02.png",
+    bio:[
+      "I like photography, museums, and sitting by windows when it rains. Coffee order is always changing."
+    ]
+  },
+  {
+    id:"w03", name:"Hannah", age:20, img:"https://i.imgur.com/REPLACE_W03.png",
+    bio:[
+      "Currently balancing school, Pilates, and figuring out what I actually want to do after graduation."
+    ]
+  },
+  {
+    id:"w04", name:"Olivia", age:23, img:"https://i.imgur.com/REPLACE_W04.png",
+    bio:[
+      "Big fan of farmer’s markets, quiet mornings, and cooking something new every week."
+    ]
+  },
+  {
+    id:"w05", name:"Maya", age:21, img:"https://i.imgur.com/REPLACE_W05.png",
+    bio:[
+      "Always planning my next short trip. I love good playlists and conversations that wander."
+    ]
+  },
+  {
+    id:"w06", name:"Lily", age:24, img:"https://i.imgur.com/REPLACE_W06.png",
+    bio:[
+      "I work out a lot but also really enjoy dessert. Trying to keep life balanced."
+    ]
+  },
+  {
+    id:"w07", name:"Ava", age:22, img:"https://i.imgur.com/REPLACE_W07.png",
+    bio:[
+      "Bookstores > bars most nights. Ask me what I’m reading right now."
+    ]
+  },
+  {
+    id:"w08", name:"Isabella", age:21, img:"https://i.imgur.com/REPLACE_W08.png",
+    bio:[
+      "I like spontaneous plans that actually work out. Big fan of late dinners and long talks."
+    ]
+  },
+  {
+    id:"w09", name:"Grace", age:23, img:"https://i.imgur.com/REPLACE_W09.png",
+    bio:[
+      "Usually biking around the city or listening to way too many podcasts."
+    ]
+  },
+  {
+    id:"w10", name:"Natalie", age:20, img:"https://i.imgur.com/REPLACE_W10.png",
+    bio:[
+      "Learning how to cook one recipe at a time. Open to recommendations."
+    ]
+  },
+  {
+    id:"w11", name:"Zoe", age:24, img:"https://i.imgur.com/REPLACE_W11.png",
+    bio:[
+      "I like climbing gyms, film photography, and conversations that go a little deep."
+    ]
+  },
+  {
+    id:"w12", name:"Chloe", age:22, img:"https://i.imgur.com/REPLACE_W12.png",
+    bio:[
+      "Big believer in walking everywhere. Still deciding if mornings or nights suit me better."
+    ]
+  },
+  {
+    id:"w13", name:"Samantha", age:23, img:"https://i.imgur.com/REPLACE_W13.png",
+    bio:[
+      "Trying to be more consistent with yoga and less consistent with scrolling."
+    ]
+  },
+  {
+    id:"w14", name:"Ella", age:21, img:"https://i.imgur.com/REPLACE_W14.png",
+    bio:[
+      "I love galleries, matcha, and places that feel a little hidden."
+    ]
+  },
+  {
+    id:"w15", name:"Julia", age:22, img:"https://i.imgur.com/REPLACE_W15.png",
+    bio:[
+      "Not great at writing bios. Better at conversations once they start."
+    ]
+  }
 ];
-const PROFILES_WOMEN = PROFILES_MEN; // TEMP: will replace later
 const PROFILES = (target === "men") ? PROFILES_MEN : PROFILES_WOMEN;
 
   // ---- 3) Inbox (6 replies) ----
   // You can edit these to match your profiles/vibe.
   const HIGH_REPLIES = [
+  // ---- 3) Inbox (6 replies) ----
+
+// Replies FROM MEN (shown when target = women)
+const HIGH_REPLIES_MEN = [
   {name:"Ethan",  time:"Just now", msg:"Hey! Coffee walks sound perfect — what’s your go-to order?"},
   {name:"Owen",   time:"1m",       msg:"Matcha fan here too. Any spots you’d recommend around campus?"},
   {name:"Lucas",  time:"3m",       msg:"Bouldering beginner squad 🤝 what’s the coolest wall you’ve tried so far?"},
@@ -387,9 +482,22 @@ const PROFILES = (target === "men") ? PROFILES_MEN : PROFILES_WOMEN;
   {name:"Tyler",  time:"15m",      msg:"If we planned a quick weekend trip, where are we going first?"}
 ];
 
+// Replies FROM WOMEN (shown when target = men)
+const HIGH_REPLIES_WOMEN = [
+  {name:"Emily",    time:"Just now", msg:"Hey! Your message was really thoughtful — what got you into that?"},
+  {name:"Sophia",   time:"2m",       msg:"I liked what you said about cafés. Do you have a favorite spot lately?"},
+  {name:"Maya",     time:"4m",       msg:"Travel planning is my weakness too 😅 what kind of trips do you like most?"},
+  {name:"Ava",      time:"7m",       msg:"Bookstore dates are underrated. What are you reading right now?"},
+  {name:"Lily",     time:"11m",      msg:"Balance is hard lol — do you have a favorite workout or class?"},
+  {name:"Julia",    time:"16m",      msg:"Not great at bios either, but your message made it easy to reply 🙂"}
+];
+
 const LOW_REPLIES = [];
 
-const INBOX_REPLIES = isHigh ? HIGH_REPLIES : LOW_REPLIES;
+
+const INBOX_REPLIES = isHigh
+  ? (target === "men" ? HIGH_REPLIES_WOMEN : HIGH_REPLIES_MEN)
+  : LOW_REPLIES;
 
   // ---- 4) State / Elements ----
   let idx = 0;
@@ -491,6 +599,14 @@ swipeRightBtn.addEventListener("click", () => {
   recordSwipe("right");
 });
 
+  function getRightSwipesSet(){
+  const set = new Set();
+  PROFILES.forEach(p => {
+    if (responses[`swipe_${p.id}`] === "right") set.add(p.id);
+  });
+  return set;
+}
+
   function showInbox() {
     // Switch views
     profileView.style.display = "none";
@@ -505,7 +621,22 @@ swipeRightBtn.addEventListener("click", () => {
     threads.innerHTML = "";
     // Update badge based on number of replies
 const badge = document.getElementById("badgeCount");
-const n = INBOX_REPLIES.length;
+
+// Start from the pre-defined replies (your fixed stimulation set)
+let repliesToShow = INBOX_REPLIES;
+
+// ✅ Passive + High: only show replies from profiles swiped right
+if (!isActive && isHigh) {
+  const rightSet = getRightSwipesSet();
+  repliesToShow = INBOX_REPLIES.filter(r => {
+    // match reply sender name to profile name, then check if that profile was swiped right
+    const prof = PROFILES.find(p => p.name === r.name);
+    return prof && rightSet.has(prof.id);
+  });
+}
+
+const n = repliesToShow.length;
+
 
 if (badge) {
   if (n === 0) {
@@ -525,7 +656,7 @@ if (n === 0) {
   return; // stop here
 }
 
-   INBOX_REPLIES.forEach((r, i) => {
+   repliesToShow.forEach((r, i) => {
   const div = document.createElement("div");
   div.className = "thread";
 
