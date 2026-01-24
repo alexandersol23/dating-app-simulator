@@ -146,6 +146,33 @@
   color:#fff;
   margin-left:6px;
 }
+    .emptyInbox{
+  padding:18px 14px;
+  font-size:13px;
+  opacity:.75;
+  line-height:1.35;
+  background:#fff;
+  border-bottom:1px solid rgba(0,0,0,.06);
+}
+
+/* --- PASSIVE (SWIPE) UI --- */
+.swipeRow{
+  display:flex;
+  gap:12px;
+}
+.swipeBtn{
+  flex:1;
+  margin-top:12px;
+  border:none;
+  border-radius:14px;
+  padding:12px;
+  font-weight:900;
+  cursor:pointer;
+  opacity:1;
+  color:#fff;
+}
+.swipeBtn.left{ background:#9e9e9e; }
+.swipeBtn.right{ background:#2d6cdf; }
 
   </style>
 </head>
@@ -154,9 +181,13 @@
   <div class="phone">
 
     <div class="topbar">
-      <div id="title">Discover</div>
-      <div class="progress" id="progress">1 / 15</div>
-    </div>
+  <div id="title">
+    Discover
+    <span id="debugCond" style="font-size:12px; opacity:.55; margin-left:8px; font-weight:700;"></span>
+  </div>
+  <div class="progress" id="progress">1 / 15</div>
+</div>
+
   <!-- INSTRUCTION VIEW (new) -->
 <div id="introView">
   <div style="padding:14px;">
@@ -195,17 +226,30 @@
       </div>
 
       <div class="panel">
-        <textarea id="msg" rows="3" maxlength="240" placeholder="Write a message…"></textarea>
-        <button id="nextBtn" disabled>Send message & continue</button>
-        <div class="hint">Please send a message before continuing.</div>
-      </div>
+  <!-- ACTIVE: message UI -->
+  <div id="messagePanel">
+    <textarea id="msg" rows="3" maxlength="240" placeholder="Write a message…"></textarea>
+    <button id="nextBtn" disabled>Send message & continue</button>
+    <div class="hint" id="activeHint">Please send a message before continuing.</div>
+  </div>
+
+  <!-- PASSIVE: swipe UI -->
+  <div id="swipePanel" style="display:none;">
+    <div class="hint" style="margin-top:0;">Swipe to continue.</div>
+    <div class="swipeRow">
+      <button id="swipeLeftBtn" class="swipeBtn left" type="button">Swipe Left</button>
+      <button id="swipeRightBtn" class="swipeBtn right" type="button">Swipe Right</button>
+    </div>
+  </div>
+</div>
+
     </div>
     
 
     <!-- INBOX VIEW (after 15 profiles) -->
     <div id="inboxView" style="display:none;">
       <div class="inboxHeader">
-  Inbox <span class="badge">6</span>
+  Inbox <span class="badge" id="badgeCount">6</span>
 </div>
 
 
@@ -235,6 +279,8 @@ const returnUrl = params.get("return") ||
 
 const isActive = cond.startsWith("active");
 const isHigh = cond.endsWith("high");
+const debugEl = document.getElementById("debugCond");
+if (debugEl) debugEl.textContent = `(${cond})`;
 
  // required for final redirect
 
@@ -353,6 +399,7 @@ const INBOX_REPLIES = isHigh ? HIGH_REPLIES : LOW_REPLIES;
   // ---- 4) State / Elements ----
   let idx = 0;
   const responses = {}; // msg_p01...msg_p15
+  let profileStartTs = null;
 
   const profileView = document.getElementById("profileView");
   const inboxView   = document.getElementById("inboxView");
@@ -361,8 +408,10 @@ const INBOX_REPLIES = isHigh ? HIGH_REPLIES : LOW_REPLIES;
   startBtn.addEventListener("click", () => {
   introView.style.display = "none";
   profileView.style.display = "block";
+  setupModeUI(); // ✅ add this
   loadProfile(); // starts profile 1
 });
+
 
   const imgEl    = document.getElementById("img");
   const nameage  = document.getElementById("nameage");
@@ -370,6 +419,20 @@ const INBOX_REPLIES = isHigh ? HIGH_REPLIES : LOW_REPLIES;
   const msgEl    = document.getElementById("msg");
   const nextBtn  = document.getElementById("nextBtn");
   const progEl   = document.getElementById("progress");
+  const messagePanel = document.getElementById("messagePanel");
+  const swipePanel   = document.getElementById("swipePanel");
+  const swipeLeftBtn = document.getElementById("swipeLeftBtn");
+  const swipeRightBtn= document.getElementById("swipeRightBtn");
+
+  function setupModeUI(){
+  if (isActive){
+    messagePanel.style.display = "block";
+    swipePanel.style.display = "none";
+  } else {
+    messagePanel.style.display = "none";
+    swipePanel.style.display = "block";
+  }
+}
 
   function loadProfile() {
     const p = PROFILES[idx];
@@ -377,36 +440,70 @@ const INBOX_REPLIES = isHigh ? HIGH_REPLIES : LOW_REPLIES;
     nameage.textContent = `${p.name}, ${p.age}`;
     bioEl.innerHTML = p.bio.join("<br>");
 
+      if (isActive) {
     msgEl.value = "";
     nextBtn.disabled = true;
     nextBtn.classList.remove("enabled");
+  }
     progEl.textContent = `${idx + 1} / ${PROFILES.length}`;
+    profileStartTs = Date.now();
   }
 
-  msgEl.addEventListener("input", () => {
-    if (msgEl.value.trim().length > 0) {
-      nextBtn.disabled = false;
-      nextBtn.classList.add("enabled");
-    } else {
-      nextBtn.disabled = true;
-      nextBtn.classList.remove("enabled");
-    }
-  });
+  function isCompleteSentence(text){
+  const t = text.trim();
+  if (t.length < 6) return false; // too short
+  const words = t.split(/\s+/).filter(Boolean);
+  if (words.length < 3) return false; // at least 3 words
+  return /[.!?]$/.test(t); // must end with punctuation
+}
+
+msgEl.addEventListener("input", () => {
+  if (!isActive) return; // passive ignores
+
+  const ok = isCompleteSentence(msgEl.value);
+  nextBtn.disabled = !ok;
+  nextBtn.classList.toggle("enabled", ok);
+});
+
+
+  function advanceAfterProfile(){
+  idx++;
+  if (idx < PROFILES.length) {
+    loadProfile();
+  } else {
+    showInbox();
+  }
+}
 
   nextBtn.addEventListener("click", () => {
-    const p = PROFILES[idx];
-    responses[`msg_${p.id}`] = msgEl.value.trim();
+  if (!isActive) return; // ✅ ignore in passive mode
 
-    idx++;
+  const p = PROFILES[idx];
+  responses[`tstart_${p.id}`] = profileStartTs;
+  responses[`tdwell_${p.id}`] = (profileStartTs ? (Date.now() - profileStartTs) : "");
+  responses[`msg_${p.id}`] = msgEl.value.trim();
 
-    if (idx < PROFILES.length) {
-      loadProfile();
-      return;
-    }
+  advanceAfterProfile();
+});
+  
+function recordSwipe(choice){
+  const p = PROFILES[idx];
+  responses[`tstart_${p.id}`] = profileStartTs;
+  responses[`tdwell_${p.id}`] = (profileStartTs ? (Date.now() - profileStartTs) : "");
+  responses[`swipe_${p.id}`] = choice; // swipe_p01 = left/right
+  responses[`msg_${p.id}`] = "";       // optional: keep message keys consistent
+  advanceAfterProfile();
+}
 
-    // After last profile -> show inbox
-    showInbox();
-  });
+swipeLeftBtn.addEventListener("click", () => {
+  if (isActive) return;
+  recordSwipe("left");
+});
+
+swipeRightBtn.addEventListener("click", () => {
+  if (isActive) return;
+  recordSwipe("right");
+});
 
   function showInbox() {
     // Switch views
@@ -420,6 +517,28 @@ const INBOX_REPLIES = isHigh ? HIGH_REPLIES : LOW_REPLIES;
     // Render threads
     const threads = document.getElementById("threads");
     threads.innerHTML = "";
+    // Update badge based on number of replies
+const badge = document.getElementById("badgeCount");
+const n = INBOX_REPLIES.length;
+
+if (badge) {
+  if (n === 0) {
+    badge.style.display = "none";
+  } else {
+    badge.style.display = "inline-block";
+    badge.textContent = String(n);
+  }
+}
+
+// If no replies, show empty state
+if (n === 0) {
+  const empty = document.createElement("div");
+  empty.className = "emptyInbox";
+  empty.textContent = "No new messages yet.";
+  threads.appendChild(empty);
+  return; // stop here
+}
+
    INBOX_REPLIES.forEach((r, i) => {
   const div = document.createElement("div");
   div.className = "thread";
@@ -449,19 +568,36 @@ const INBOX_REPLIES = isHigh ? HIGH_REPLIES : LOW_REPLIES;
 
   // Continue -> redirect back to Qualtrics (or whatever returnUrl is)
   document.getElementById("continueBtn").addEventListener("click", () => {
-    if (!returnUrl) {
-      alert("Missing return URL. Add ?return=YOUR_QUALTRICS_LINK to the simulator URL.");
-      return;
-    }
-    const q = new URLSearchParams(responses);
-    location.href = returnUrl + (returnUrl.includes("?") ? "&" : "?") + q.toString();
+  if (!returnUrl) {
+    alert("Missing return URL. Add ?return=YOUR_QUALTRICS_LINK to the simulator URL.");
+    return;
+  }
+
+    responses._meta = {
+  cond,
+  target,
+  ts_end: Date.now()
+};
+
+  const payload = encodePayload({
+    cond,
+    target,
+    responses
   });
+
+  const sep = returnUrl.includes("?") ? "&" : "?";
+  location.href = returnUrl + sep + "payload=" + payload;
+});
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, s => ({
       "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
     }[s]));
   }
+  function encodePayload(obj){
+  const json = JSON.stringify(obj);
+  return btoa(unescape(encodeURIComponent(json)));
+}
 
   // Init
 // Wait for participant to click Start on the intro page
