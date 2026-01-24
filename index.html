@@ -276,7 +276,12 @@
   const params = new URLSearchParams(location.search);
 
 const cond = (params.get("cond") || "active_high").toLowerCase();      // active_high / active_low / passive_high / passive_low
-const target = (params.get("target") || "women").toLowerCase();       // men / women
+const rawTarget = (params.get("target") || "women").toLowerCase().trim();
+// accept men/male/man and women/female/woman
+const target =
+  (rawTarget === "men" || rawTarget === "male" || rawTarget === "man") ? "men" :
+  (rawTarget === "women" || rawTarget === "female" || rawTarget === "woman") ? "women" :
+  "women";
 
 // Qualtrics return link (if missing, fall back to your survey link)
 const returnUrl = params.get("return") ||
@@ -380,7 +385,7 @@ const isHigh = cond.endsWith("high");
       "Not great at bios. Better in person. I like tennis, short trips, and spontaneous plans that actually work out."
     ]
   }
-]
+];
   const PROFILES_WOMEN = [
   {
     id:"w01", name:"Emily", age:21, img:"https://i.imgur.com/REPLACE_W01.png",
@@ -478,7 +483,7 @@ const PROFILES = (target === "men") ? PROFILES_MEN : PROFILES_WOMEN;
   // ---- 3) Inbox (6 replies) ----
   // You can edit these to match your profiles/vibe.
   const HIGH_REPLIES = [
-  // ---- 3) Inbox (6 replies) ----
+// ---- 3) Inbox (6 replies) ----
 
 // Replies FROM MEN (shown when target = women)
 const HIGH_REPLIES_MEN = [
@@ -501,7 +506,6 @@ const HIGH_REPLIES_WOMEN = [
 ];
 
 const LOW_REPLIES = [];
-
 
 const INBOX_REPLIES = isHigh
   ? (target === "men" ? HIGH_REPLIES_WOMEN : HIGH_REPLIES_MEN)
