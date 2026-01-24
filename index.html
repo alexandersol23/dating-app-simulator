@@ -200,6 +200,7 @@
         <div class="hint">Please send a message before continuing.</div>
       </div>
     </div>
+    
 
     <!-- INBOX VIEW (after 15 profiles) -->
     <div id="inboxView" style="display:none;">
@@ -224,12 +225,22 @@
 <script>
   // ---- 1) Config ----
   const params = new URLSearchParams(location.search);
-  const returnUrl = "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_8p4wD7wS8EwXMns";
+
+const cond = (params.get("cond") || "active_high").toLowerCase();      // active_high / active_low / passive_high / passive_low
+const target = (params.get("target") || "women").toLowerCase();       // men / women
+
+// Qualtrics return link (if missing, fall back to your survey link)
+const returnUrl = params.get("return") ||
+  "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_8p4wD7wS8EwXMns";
+
+const isActive = cond.startsWith("active");
+const isHigh = cond.endsWith("high");
+
  // required for final redirect
 
   // ---- 2) Profiles (15) ----
   // Replace img URLs with your AI image URLs (direct links like https://i.imgur.com/xxxx.png)
-  const PROFILES = [
+  const PROFILES_MEN = [
   {
     id:"p01", name:"Alex", age:21, img:"https://i.imgur.com/fOCWnxj.png",
     bio:[
@@ -321,17 +332,23 @@
     ]
   }
 ];
+const PROFILES_WOMEN = PROFILES_MEN; // TEMP: will replace later
+const PROFILES = (target === "men") ? PROFILES_MEN : PROFILES_WOMEN;
 
   // ---- 3) Inbox (6 replies) ----
   // You can edit these to match your profiles/vibe.
-  const INBOX_REPLIES = [
-    {name:"Ethan",  time:"Just now",  msg:"Hey! Coffee walks sound perfect — what’s your go-to order?"},
-    {name:"Owen",   time:"1m",        msg:"Matcha fan here too. Any spots you’d recommend around campus?"},
-    {name:"Lucas",  time:"3m",        msg:"Bouldering beginner squad 🤝 what’s the coolest wall you’ve tried so far?"},
-    {name:"Sam",    time:"6m",        msg:"Guitar learner too — what song are you working on right now?"},
-    {name:"Noah",   time:"10m",       msg:"Ramen debate time: tonkotsu or miso? (choose wisely)"},
-    {name:"Tyler",  time:"15m",       msg:"If we planned a quick weekend trip, where are we going first?"}
-  ];
+  const HIGH_REPLIES = [
+  {name:"Ethan",  time:"Just now", msg:"Hey! Coffee walks sound perfect — what’s your go-to order?"},
+  {name:"Owen",   time:"1m",       msg:"Matcha fan here too. Any spots you’d recommend around campus?"},
+  {name:"Lucas",  time:"3m",       msg:"Bouldering beginner squad 🤝 what’s the coolest wall you’ve tried so far?"},
+  {name:"Sam",    time:"6m",       msg:"Guitar learner too — what song are you working on right now?"},
+  {name:"Noah",   time:"10m",      msg:"Ramen debate time: tonkotsu or miso? (choose wisely)"},
+  {name:"Tyler",  time:"15m",      msg:"If we planned a quick weekend trip, where are we going first?"}
+];
+
+const LOW_REPLIES = [];
+
+const INBOX_REPLIES = isHigh ? HIGH_REPLIES : LOW_REPLIES;
 
   // ---- 4) State / Elements ----
   let idx = 0;
