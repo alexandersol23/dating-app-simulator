@@ -272,282 +272,127 @@
   </div>
 
 <script>
+window.addEventListener("DOMContentLoaded", () => {
   // ---- 1) Config ----
   const params = new URLSearchParams(location.search);
 
-const cond = (params.get("cond") || "active_high").toLowerCase();      // active_high / active_low / passive_high / passive_low
-const rawTarget = (params.get("target") || "women").toLowerCase().trim();
-// accept men/male/man and women/female/woman
-const target =
-  (rawTarget === "men" || rawTarget === "male" || rawTarget === "man") ? "men" :
-  (rawTarget === "women" || rawTarget === "female" || rawTarget === "woman") ? "women" :
-  "women";
+  const cond = (params.get("cond") || "active_high").toLowerCase().trim(); // active_high / active_low / passive_high / passive_low
 
-// Qualtrics return link (if missing, fall back to your survey link)
-const returnUrl = params.get("return") ||
-  "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_8p4wD7wS8EwXMns";
+  // Robust target parsing (accept men/male/man; women/female/woman)
+  const rawTarget = (params.get("target") || "women").toLowerCase().trim();
+  const target =
+    (rawTarget === "men" || rawTarget === "male" || rawTarget === "man") ? "men" :
+    (rawTarget === "women" || rawTarget === "female" || rawTarget === "woman") ? "women" :
+    "women";
 
-const isActive = cond.startsWith("active");
-const isHigh = cond.endsWith("high");
+  const returnUrl = params.get("return") ||
+    "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_8p4wD7wS8EwXMns";
 
- // required for final redirect
+  const isActive = cond.startsWith("active");
+  const isHigh = cond.endsWith("high");
 
-  // ---- 2) Profiles (15) ----
-  // Replace img URLs with your AI image URLs (direct links like https://i.imgur.com/xxxx.png)
+  // Researcher-only debug (does NOT show to participants)
+  console.log("cond =", cond, "rawTarget =", rawTarget, "normalized target =", target);
+
+  // ---- 2) Profiles ----
   const PROFILES_MEN = [
-  {
-    id:"p01", name:"Alex", age:21, img:"https://i.imgur.com/fOCWnxj.png",
-    bio:[
-      "Still figuring out what I want, but I know I like the ocean, quiet mornings, and people who don’t take themselves too seriously."
-    ]
-  },
-  {
-    id:"p02", name:"Ethan", age:22, img:"https://i.imgur.com/REPLACE02.png",
-    bio:[
-      "I run on coffee and deadlines. Probably overthinking this bio. If you have a favorite café, I want to hear about it."
-    ]
-  },
-  {
-    id:"p03", name:"Ryan", age:20, img:"https://i.imgur.com/REPLACE03.png",
-    bio:[
-      "Into photography lately. Mostly streets, sometimes people. Bad at posing, better behind the camera."
-    ]
-  },
-  {
-    id:"p04", name:"Noah", age:23, img:"https://i.imgur.com/REPLACE04.png",
-    bio:[
-      "Grew up playing basketball, still do when I can. Trying to learn how to cook something other than pasta."
-    ]
-  },
-  {
-    id:"p05", name:"Lucas", age:21, img:"https://i.imgur.com/REPLACE05.png",
-    bio:[
-      "Climbing gyms scare me a little but I keep going back. Movie nights > parties, most of the time."
-    ]
-  },
-  {
-    id:"p06", name:"Jay", age:24, img:"https://i.imgur.com/REPLACE06.png",
-    bio:[
-      "I like long walks, vinyl records, and conversations that drift a bit. Not great at small talk, better after the second coffee."
-    ]
-  },
-  {
-    id:"p07", name:"Ben", age:22, img:"https://i.imgur.com/REPLACE07.png",
-    bio:[
-      "Usually outdoors on weekends if the weather cooperates. Reads a lot, remembers very little of it."
-    ]
-  },
-  {
-    id:"p08", name:"Chris", age:21, img:"https://i.imgur.com/REPLACE08.png",
-    bio:[
-      "Pretty laid-back. I like games, late-night snacks, and people who laugh easily."
-    ]
-  },
-  {
-    id:"p09", name:"Leo", age:23, img:"https://i.imgur.com/REPLACE09.png",
-    bio:[
-      "Architecture student. Always noticing buildings, probably judging them. Coffee order is boring but reliable."
-    ]
-  },
-  {
-    id:"p10", name:"Sam", age:20, img:"https://i.imgur.com/REPLACE10.png",
-    bio:[
-      "Learning guitar very slowly. If you have song recommendations, that’s already a good start."
-    ]
-  },
-  {
-    id:"p11", name:"Aaron", age:24, img:"https://i.imgur.com/REPLACE11.png",
-    bio:[
-      "Trying to be more consistent at the gym and less consistent with takeout. Mixed results so far."
-    ]
-  },
-  {
-    id:"p12", name:"Daniel", age:22, img:"https://i.imgur.com/REPLACE12.png",
-    bio:[
-      "People say I’m confident because I like karaoke. The truth is I just commit once I’m already on stage."
-    ]
-  },
-  {
-    id:"p13", name:"Mark", age:23, img:"https://i.imgur.com/REPLACE13.png",
-    bio:[
-      "I bike everywhere and listen to too many podcasts. Ask me what I’m listening to this week."
-    ]
-  },
-  {
-    id:"p14", name:"Owen", age:21, img:"https://i.imgur.com/REPLACE14.png",
-    bio:[
-      "Big fan of quiet galleries and noisy bubble tea places. Still undecided which one I like more."
-    ]
-  },
-  {
-    id:"p15", name:"Tyler", age:22, img:"https://i.imgur.com/REPLACE15.png",
-    bio:[
-      "Not great at bios. Better in person. I like tennis, short trips, and spontaneous plans that actually work out."
-    ]
-  }
-];
+    { id:"p01", name:"Alex",   age:21, img:"https://i.imgur.com/fOCWnxj.png", bio:["Still figuring out what I want, but I know I like the ocean, quiet mornings, and people who don’t take themselves too seriously."] },
+    { id:"p02", name:"Ethan",  age:22, img:"https://i.imgur.com/REPLACE02.png", bio:["I run on coffee and deadlines. Probably overthinking this bio. If you have a favorite café, I want to hear about it."] },
+    { id:"p03", name:"Ryan",   age:20, img:"https://i.imgur.com/REPLACE03.png", bio:["Into photography lately. Mostly streets, sometimes people. Bad at posing, better behind the camera."] },
+    { id:"p04", name:"Noah",   age:23, img:"https://i.imgur.com/REPLACE04.png", bio:["Grew up playing basketball, still do when I can. Trying to learn how to cook something other than pasta."] },
+    { id:"p05", name:"Lucas",  age:21, img:"https://i.imgur.com/REPLACE05.png", bio:["Climbing gyms scare me a little but I keep going back. Movie nights > parties, most of the time."] },
+    { id:"p06", name:"Jay",    age:24, img:"https://i.imgur.com/REPLACE06.png", bio:["I like long walks, vinyl records, and conversations that drift a bit. Not great at small talk, better after the second coffee."] },
+    { id:"p07", name:"Ben",    age:22, img:"https://i.imgur.com/REPLACE07.png", bio:["Usually outdoors on weekends if the weather cooperates. Reads a lot, remembers very little of it."] },
+    { id:"p08", name:"Chris",  age:21, img:"https://i.imgur.com/REPLACE08.png", bio:["Pretty laid-back. I like games, late-night snacks, and people who laugh easily."] },
+    { id:"p09", name:"Leo",    age:23, img:"https://i.imgur.com/REPLACE09.png", bio:["Architecture student. Always noticing buildings, probably judging them. Coffee order is boring but reliable."] },
+    { id:"p10", name:"Sam",    age:20, img:"https://i.imgur.com/REPLACE10.png", bio:["Learning guitar very slowly. If you have song recommendations, that’s already a good start."] },
+    { id:"p11", name:"Aaron",  age:24, img:"https://i.imgur.com/REPLACE11.png", bio:["Trying to be more consistent at the gym and less consistent with takeout. Mixed results so far."] },
+    { id:"p12", name:"Daniel", age:22, img:"https://i.imgur.com/REPLACE12.png", bio:["People say I’m confident because I like karaoke. The truth is I just commit once I’m already on stage."] },
+    { id:"p13", name:"Mark",   age:23, img:"https://i.imgur.com/REPLACE13.png", bio:["I bike everywhere and listen to too many podcasts. Ask me what I’m listening to this week."] },
+    { id:"p14", name:"Owen",   age:21, img:"https://i.imgur.com/REPLACE14.png", bio:["Big fan of quiet galleries and noisy bubble tea places. Still undecided which one I like more."] },
+    { id:"p15", name:"Tyler",  age:22, img:"https://i.imgur.com/REPLACE15.png", bio:["Not great at bios. Better in person. I like tennis, short trips, and spontaneous plans that actually work out."] }
+  ];
+
   const PROFILES_WOMEN = [
-  {
-    id:"w01", name:"Emily", age:21, img:"https://i.imgur.com/REPLACE_W01.png",
-    bio:[
-      "Into long walks with podcasts, trying new cafés, and pretending I don’t like reality TV."
-    ]
-  },
-  {
-    id:"w02", name:"Sophia", age:22, img:"https://i.imgur.com/REPLACE_W02.png",
-    bio:[
-      "I like photography, museums, and sitting by windows when it rains. Coffee order is always changing."
-    ]
-  },
-  {
-    id:"w03", name:"Hannah", age:20, img:"https://i.imgur.com/REPLACE_W03.png",
-    bio:[
-      "Currently balancing school, Pilates, and figuring out what I actually want to do after graduation."
-    ]
-  },
-  {
-    id:"w04", name:"Olivia", age:23, img:"https://i.imgur.com/REPLACE_W04.png",
-    bio:[
-      "Big fan of farmer’s markets, quiet mornings, and cooking something new every week."
-    ]
-  },
-  {
-    id:"w05", name:"Maya", age:21, img:"https://i.imgur.com/REPLACE_W05.png",
-    bio:[
-      "Always planning my next short trip. I love good playlists and conversations that wander."
-    ]
-  },
-  {
-    id:"w06", name:"Lily", age:24, img:"https://i.imgur.com/REPLACE_W06.png",
-    bio:[
-      "I work out a lot but also really enjoy dessert. Trying to keep life balanced."
-    ]
-  },
-  {
-    id:"w07", name:"Ava", age:22, img:"https://i.imgur.com/REPLACE_W07.png",
-    bio:[
-      "Bookstores > bars most nights. Ask me what I’m reading right now."
-    ]
-  },
-  {
-    id:"w08", name:"Isabella", age:21, img:"https://i.imgur.com/REPLACE_W08.png",
-    bio:[
-      "I like spontaneous plans that actually work out. Big fan of late dinners and long talks."
-    ]
-  },
-  {
-    id:"w09", name:"Grace", age:23, img:"https://i.imgur.com/REPLACE_W09.png",
-    bio:[
-      "Usually biking around the city or listening to way too many podcasts."
-    ]
-  },
-  {
-    id:"w10", name:"Natalie", age:20, img:"https://i.imgur.com/REPLACE_W10.png",
-    bio:[
-      "Learning how to cook one recipe at a time. Open to recommendations."
-    ]
-  },
-  {
-    id:"w11", name:"Zoe", age:24, img:"https://i.imgur.com/REPLACE_W11.png",
-    bio:[
-      "I like climbing gyms, film photography, and conversations that go a little deep."
-    ]
-  },
-  {
-    id:"w12", name:"Chloe", age:22, img:"https://i.imgur.com/REPLACE_W12.png",
-    bio:[
-      "Big believer in walking everywhere. Still deciding if mornings or nights suit me better."
-    ]
-  },
-  {
-    id:"w13", name:"Samantha", age:23, img:"https://i.imgur.com/REPLACE_W13.png",
-    bio:[
-      "Trying to be more consistent with yoga and less consistent with scrolling."
-    ]
-  },
-  {
-    id:"w14", name:"Ella", age:21, img:"https://i.imgur.com/REPLACE_W14.png",
-    bio:[
-      "I love galleries, matcha, and places that feel a little hidden."
-    ]
-  },
-  {
-    id:"w15", name:"Julia", age:22, img:"https://i.imgur.com/REPLACE_W15.png",
-    bio:[
-      "Not great at writing bios. Better at conversations once they start."
-    ]
-  }
-];
-const PROFILES = (target === "men") ? PROFILES_MEN : PROFILES_WOMEN;
+    { id:"w01", name:"Emily",    age:21, img:"https://i.imgur.com/REPLACE_W01.png", bio:["Into long walks with podcasts, trying new cafés, and pretending I don’t like reality TV."] },
+    { id:"w02", name:"Sophia",   age:22, img:"https://i.imgur.com/REPLACE_W02.png", bio:["I like photography, museums, and sitting by windows when it rains. Coffee order is always changing."] },
+    { id:"w03", name:"Hannah",   age:20, img:"https://i.imgur.com/REPLACE_W03.png", bio:["Currently balancing school, Pilates, and figuring out what I actually want to do after graduation."] },
+    { id:"w04", name:"Olivia",   age:23, img:"https://i.imgur.com/REPLACE_W04.png", bio:["Big fan of farmer’s markets, quiet mornings, and cooking something new every week."] },
+    { id:"w05", name:"Maya",     age:21, img:"https://i.imgur.com/REPLACE_W05.png", bio:["Always planning my next short trip. I love good playlists and conversations that wander."] },
+    { id:"w06", name:"Lily",     age:24, img:"https://i.imgur.com/REPLACE_W06.png", bio:["I work out a lot but also really enjoy dessert. Trying to keep life balanced."] },
+    { id:"w07", name:"Ava",      age:22, img:"https://i.imgur.com/REPLACE_W07.png", bio:["Bookstores > bars most nights. Ask me what I’m reading right now."] },
+    { id:"w08", name:"Isabella", age:21, img:"https://i.imgur.com/REPLACE_W08.png", bio:["I like spontaneous plans that actually work out. Big fan of late dinners and long talks."] },
+    { id:"w09", name:"Grace",    age:23, img:"https://i.imgur.com/REPLACE_W09.png", bio:["Usually biking around the city or listening to way too many podcasts."] },
+    { id:"w10", name:"Natalie",  age:20, img:"https://i.imgur.com/REPLACE_W10.png", bio:["Learning how to cook one recipe at a time. Open to recommendations."] },
+    { id:"w11", name:"Zoe",      age:24, img:"https://i.imgur.com/REPLACE_W11.png", bio:["I like climbing gyms, film photography, and conversations that go a little deep."] },
+    { id:"w12", name:"Chloe",    age:22, img:"https://i.imgur.com/REPLACE_W12.png", bio:["Big believer in walking everywhere. Still deciding if mornings or nights suit me better."] },
+    { id:"w13", name:"Samantha", age:23, img:"https://i.imgur.com/REPLACE_W13.png", bio:["Trying to be more consistent with yoga and less consistent with scrolling."] },
+    { id:"w14", name:"Ella",     age:21, img:"https://i.imgur.com/REPLACE_W14.png", bio:["I love galleries, matcha, and places that feel a little hidden."] },
+    { id:"w15", name:"Julia",    age:22, img:"https://i.imgur.com/REPLACE_W15.png", bio:["Not great at writing bios. Better at conversations once they start."] }
+  ];
 
-  // ---- 3) Inbox (6 replies) ----
-  // You can edit these to match your profiles/vibe.
-  const HIGH_REPLIES = [
-// ---- 3) Inbox (6 replies) ----
+  const PROFILES = (target === "men") ? PROFILES_MEN : PROFILES_WOMEN;
 
-// Replies FROM MEN (shown when target = women)
-const HIGH_REPLIES_MEN = [
-  {name:"Ethan",  time:"Just now", msg:"Hey! Coffee walks sound perfect — what’s your go-to order?"},
-  {name:"Owen",   time:"1m",       msg:"Matcha fan here too. Any spots you’d recommend around campus?"},
-  {name:"Lucas",  time:"3m",       msg:"Bouldering beginner squad 🤝 what’s the coolest wall you’ve tried so far?"},
-  {name:"Sam",    time:"6m",       msg:"Guitar learner too — what song are you working on right now?"},
-  {name:"Noah",   time:"10m",      msg:"Ramen debate time: tonkotsu or miso? (choose wisely)"},
-  {name:"Tyler",  time:"15m",      msg:"If we planned a quick weekend trip, where are we going first?"}
-];
+  // ---- 3) Inbox replies ----
+  const HIGH_REPLIES_MEN = [
+    {name:"Ethan",  time:"Just now", msg:"Hey! Coffee walks sound perfect — what’s your go-to order?"},
+    {name:"Owen",   time:"1m",       msg:"Matcha fan here too. Any spots you’d recommend around campus?"},
+    {name:"Lucas",  time:"3m",       msg:"Bouldering beginner squad 🤝 what’s the coolest wall you’ve tried so far?"},
+    {name:"Sam",    time:"6m",       msg:"Guitar learner too — what song are you working on right now?"},
+    {name:"Noah",   time:"10m",      msg:"Ramen debate time: tonkotsu or miso? (choose wisely)"},
+    {name:"Tyler",  time:"15m",      msg:"If we planned a quick weekend trip, where are we going first?"}
+  ];
 
-// Replies FROM WOMEN (shown when target = men)
-const HIGH_REPLIES_WOMEN = [
-  {name:"Emily",    time:"Just now", msg:"Hey! Your message was really thoughtful — what got you into that?"},
-  {name:"Sophia",   time:"2m",       msg:"I liked what you said about cafés. Do you have a favorite spot lately?"},
-  {name:"Maya",     time:"4m",       msg:"Travel planning is my weakness too 😅 what kind of trips do you like most?"},
-  {name:"Ava",      time:"7m",       msg:"Bookstore dates are underrated. What are you reading right now?"},
-  {name:"Lily",     time:"11m",      msg:"Balance is hard lol — do you have a favorite workout or class?"},
-  {name:"Julia",    time:"16m",      msg:"Not great at bios either, but your message made it easy to reply 🙂"}
-];
+  const HIGH_REPLIES_WOMEN = [
+    {name:"Emily",   time:"Just now", msg:"Hey! Your message was really thoughtful — what got you into that?"},
+    {name:"Sophia",  time:"2m",       msg:"I liked what you said about cafés. Do you have a favorite spot lately?"},
+    {name:"Maya",    time:"4m",       msg:"Travel planning is my weakness too 😅 what kind of trips do you like most?"},
+    {name:"Ava",     time:"7m",       msg:"Bookstore dates are underrated. What are you reading right now?"},
+    {name:"Lily",    time:"11m",      msg:"Balance is hard lol — do you have a favorite workout or class?"},
+    {name:"Julia",   time:"16m",      msg:"Not great at bios either, but your message made it easy to reply 🙂"}
+  ];
 
-const LOW_REPLIES = [];
+  const LOW_REPLIES = [];
 
-const INBOX_REPLIES = isHigh
-  ? (target === "men" ? HIGH_REPLIES_WOMEN : HIGH_REPLIES_MEN)
-  : LOW_REPLIES;
+  // NOTE: "target=men" means participants saw MEN profiles -> replies should be from WOMEN
+  const INBOX_REPLIES_BASE = isHigh
+    ? (target === "men" ? HIGH_REPLIES_WOMEN : HIGH_REPLIES_MEN)
+    : LOW_REPLIES;
 
   // ---- 4) State / Elements ----
   let idx = 0;
-  const responses = {}; // msg_p01...msg_p15
+  const responses = {};
   let profileStartTs = null;
 
+  const introView   = document.getElementById("introView");
   const profileView = document.getElementById("profileView");
   const inboxView   = document.getElementById("inboxView");
-  const introView   = document.getElementById("introView");
-  const startBtn    = document.getElementById("startBtn");
-  startBtn.addEventListener("click", () => {
-  introView.style.display = "none";
-  profileView.style.display = "block";
-  setupModeUI(); // ✅ add this
-  loadProfile(); // starts profile 1
-});
-
 
   const imgEl    = document.getElementById("img");
   const nameage  = document.getElementById("nameage");
   const bioEl    = document.getElementById("bio");
+
   const msgEl    = document.getElementById("msg");
   const nextBtn  = document.getElementById("nextBtn");
+
   const progEl   = document.getElementById("progress");
+
   const messagePanel = document.getElementById("messagePanel");
   const swipePanel   = document.getElementById("swipePanel");
   const swipeLeftBtn = document.getElementById("swipeLeftBtn");
   const swipeRightBtn= document.getElementById("swipeRightBtn");
 
+  const startBtn = document.getElementById("startBtn");
+
   function setupModeUI(){
-  if (isActive){
-    messagePanel.style.display = "block";
-    swipePanel.style.display = "none";
-  } else {
-    messagePanel.style.display = "none";
-    swipePanel.style.display = "block";
+    if (isActive){
+      messagePanel.style.display = "block";
+      swipePanel.style.display = "none";
+    } else {
+      messagePanel.style.display = "none";
+      swipePanel.style.display = "block";
+    }
   }
-}
 
   function loadProfile() {
     const p = PROFILES[idx];
@@ -555,182 +400,152 @@ const INBOX_REPLIES = isHigh
     nameage.textContent = `${p.name}, ${p.age}`;
     bioEl.innerHTML = p.bio.join("<br>");
 
-      if (isActive) {
-    msgEl.value = "";
-    nextBtn.disabled = true;
-    nextBtn.classList.remove("enabled");
-  }
     progEl.textContent = `${idx + 1} / ${PROFILES.length}`;
+
+    if (isActive) {
+      msgEl.value = "";
+      nextBtn.disabled = true;
+      nextBtn.classList.remove("enabled");
+    }
+
     profileStartTs = Date.now();
   }
 
-msgEl.addEventListener("input", () => {
-  if (!isActive) return;
-
-  const ok = msgEl.value.trim().length > 0; // ✅ anything is ok
-  nextBtn.disabled = !ok;
-  nextBtn.classList.toggle("enabled", ok);
-});
-
   function advanceAfterProfile(){
-  idx++;
-  if (idx < PROFILES.length) {
-    loadProfile();
-  } else {
-    showInbox();
+    idx++;
+    if (idx < PROFILES.length) loadProfile();
+    else showInbox();
   }
-}
+
+  // Active: enable button for ANY non-empty text
+  msgEl.addEventListener("input", () => {
+    if (!isActive) return;
+    const ok = msgEl.value.trim().length > 0;
+    nextBtn.disabled = !ok;
+    nextBtn.classList.toggle("enabled", ok);
+  });
 
   nextBtn.addEventListener("click", () => {
-  if (!isActive) return; // ✅ ignore in passive mode
+    if (!isActive) return;
 
-  const p = PROFILES[idx];
-  responses[`tstart_${p.id}`] = profileStartTs;
-  responses[`tdwell_${p.id}`] = (profileStartTs ? (Date.now() - profileStartTs) : "");
-  responses[`msg_${p.id}`] = msgEl.value.trim();
+    const p = PROFILES[idx];
+    responses[`tstart_${p.id}`] = profileStartTs;
+    responses[`tdwell_${p.id}`] = profileStartTs ? (Date.now() - profileStartTs) : "";
+    responses[`msg_${p.id}`] = msgEl.value.trim();
 
-  advanceAfterProfile();
-});
-  
-function recordSwipe(choice){
-  const p = PROFILES[idx];
-  responses[`tstart_${p.id}`] = profileStartTs;
-  responses[`tdwell_${p.id}`] = (profileStartTs ? (Date.now() - profileStartTs) : "");
-  responses[`swipe_${p.id}`] = choice; // swipe_p01 = left/right
-  responses[`msg_${p.id}`] = "";       // optional: keep message keys consistent
-  advanceAfterProfile();
-}
+    advanceAfterProfile();
+  });
 
-swipeLeftBtn.addEventListener("click", () => {
-  if (isActive) return;
-  recordSwipe("left");
-});
+  function recordSwipe(choice){
+    const p = PROFILES[idx];
+    responses[`tstart_${p.id}`] = profileStartTs;
+    responses[`tdwell_${p.id}`] = profileStartTs ? (Date.now() - profileStartTs) : "";
+    responses[`swipe_${p.id}`] = choice;
+    responses[`msg_${p.id}`] = "";
+    advanceAfterProfile();
+  }
 
-swipeRightBtn.addEventListener("click", () => {
-  if (isActive) return;
-  recordSwipe("right");
-});
+  swipeLeftBtn.addEventListener("click", () => {
+    if (isActive) return;
+    recordSwipe("left");
+  });
+
+  swipeRightBtn.addEventListener("click", () => {
+    if (isActive) return;
+    recordSwipe("right");
+  });
 
   function getRightSwipesSet(){
-  const set = new Set();
-  PROFILES.forEach(p => {
-    if (responses[`swipe_${p.id}`] === "right") set.add(p.id);
-  });
-  return set;
-}
+    const set = new Set();
+    PROFILES.forEach(p => {
+      if (responses[`swipe_${p.id}`] === "right") set.add(p.id);
+    });
+    return set;
+  }
 
   function showInbox() {
-    // Switch views
     profileView.style.display = "none";
     inboxView.style.display = "block";
 
-    // Update top bar
     document.getElementById("title").textContent = "Messages";
-    progEl.textContent = ""; // hide progress pill content without removing element
+    progEl.textContent = "";
 
-    // Render threads
     const threads = document.getElementById("threads");
     threads.innerHTML = "";
-    // Update badge based on number of replies
-const badge = document.getElementById("badgeCount");
 
-// Start from the pre-defined replies (your fixed stimulation set)
-let repliesToShow = INBOX_REPLIES;
+    let repliesToShow = INBOX_REPLIES_BASE;
 
-// ✅ Passive + High: only show replies from profiles swiped right
-if (!isActive && isHigh) {
-  const rightSet = getRightSwipesSet();
-  repliesToShow = INBOX_REPLIES.filter(r => {
-    // match reply sender name to profile name, then check if that profile was swiped right
-    const prof = PROFILES.find(p => p.name === r.name);
-    return prof && rightSet.has(prof.id);
+    // Passive + High: only replies from right-swipes
+    if (!isActive && isHigh) {
+      const rightSet = getRightSwipesSet();
+      repliesToShow = INBOX_REPLIES_BASE.filter(r => {
+        const prof = PROFILES.find(p => p.name === r.name);
+        return prof && rightSet.has(prof.id);
+      });
+    }
+
+    const badge = document.getElementById("badgeCount");
+    const n = repliesToShow.length;
+
+    if (badge) {
+      badge.style.display = n === 0 ? "none" : "inline-block";
+      badge.textContent = String(n);
+    }
+
+    if (n === 0) {
+      const empty = document.createElement("div");
+      empty.className = "emptyInbox";
+      empty.textContent = "No new messages yet.";
+      threads.appendChild(empty);
+      return;
+    }
+
+    repliesToShow.forEach((r) => {
+      const div = document.createElement("div");
+      div.className = "thread";
+      div.innerHTML = `
+        <div class="avatar"><div class="dot red"></div></div>
+        <div class="threadBody">
+          <div class="threadTop">
+            <div class="threadName">${escapeHtml(r.name)}</div>
+            <div class="threadTime">${escapeHtml(r.time)}</div>
+          </div>
+          <div class="threadMsg">${escapeHtml(r.msg)}</div>
+        </div>
+      `;
+      threads.appendChild(div);
+    });
+  }
+
+  // Start button: JS version (you can remove inline onclick after this works)
+  startBtn.addEventListener("click", () => {
+    introView.style.display = "none";
+    profileView.style.display = "block";
+    setupModeUI();
+    loadProfile();
   });
-}
 
-const n = repliesToShow.length;
-
-
-if (badge) {
-  if (n === 0) {
-    badge.style.display = "none";
-  } else {
-    badge.style.display = "inline-block";
-    badge.textContent = String(n);
-  }
-}
-
-// If no replies, show empty state
-if (n === 0) {
-  const empty = document.createElement("div");
-  empty.className = "emptyInbox";
-  empty.textContent = "No new messages yet.";
-  threads.appendChild(empty);
-  return; // stop here
-}
-
-   repliesToShow.forEach((r, i) => {
-  const div = document.createElement("div");
-  div.className = "thread";
-
-  /* Alternate red dots for visual realism */
- const dotColor = "red";
-
-
-  div.innerHTML = `
-    <div class="avatar">
-      <!-- profile image goes here later -->
-      <div class="dot ${dotColor}"></div>
-    </div>
-
-    <div class="threadBody">
-      <div class="threadTop">
-        <div class="threadName">${escapeHtml(r.name)}</div>
-        <div class="threadTime">${escapeHtml(r.time)}</div>
-      </div>
-      <div class="threadMsg">${escapeHtml(r.msg)}</div>
-    </div>
-  `;
-  threads.appendChild(div);
-});
-
-  }
-
-  // Continue -> redirect back to Qualtrics (or whatever returnUrl is)
   document.getElementById("continueBtn").addEventListener("click", () => {
-  if (!returnUrl) {
-    alert("Missing return URL. Add ?return=YOUR_QUALTRICS_LINK to the simulator URL.");
-    return;
-  }
+    responses._meta = { cond, target, rawTarget, ts_end: Date.now() };
 
-    responses._meta = {
-  cond,
-  target,
-  ts_end: Date.now()
-};
-
-  const payload = encodePayload({
-    cond,
-    target,
-    responses
+    const payload = encodePayload({ cond, target, responses });
+    const sep = returnUrl.includes("?") ? "&" : "?";
+    location.href = returnUrl + sep + "payload=" + payload;
   });
-
-  const sep = returnUrl.includes("?") ? "&" : "?";
-  location.href = returnUrl + sep + "payload=" + payload;
-});
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, s => ({
       "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
     }[s]));
   }
-  function encodePayload(obj){
-  const json = JSON.stringify(obj);
-  return btoa(unescape(encodeURIComponent(json)));
-}
 
-  // Init
-// Wait for participant to click Start on the intro page
+  function encodePayload(obj){
+    const json = JSON.stringify(obj);
+    return btoa(unescape(encodeURIComponent(json)));
+  }
+});
 </script>
+
 
 </body>
 </html>
