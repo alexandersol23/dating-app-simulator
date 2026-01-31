@@ -546,14 +546,14 @@ const INBOX_REPLIES_BASE = isHigh
   }
 
   // Start button: JS version (you can remove inline onclick after this works)
-  startBtn.addEventListener("click", () => {
-    introView.style.display = "none";
-    profileView.style.display = "block";
-    setupModeUI();
-    loadProfile();
-  });
+ startBtn.addEventListener("click", () => {
+  introView.style.display = "none";
+  profileView.style.display = "block";
+  setupModeUI();
+  loadProfile();
+});
 
-  document.getElementById("continueBtn").addEventListener("click", () => {
+document.getElementById("continueBtn").addEventListener("click", () => {
   const payloadObj = { cond, target, responses };
   const payload = encodePayload(payloadObj);
 
@@ -563,17 +563,17 @@ const INBOX_REPLIES_BASE = isHigh
   window.location.href = u.toString();
 });
 
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, s => ({
-      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-    }[s]));
-  }
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, s => ({
+    "&":"&amp;", "<":"&lt;", ">":"&lt;", '"':"&quot;", "'":"&#39;"
+  }[s]));
+}
 
-  function encodePayload(obj){
-    const json = JSON.stringify(obj);
-    return btoa(unescape(encodeURIComponent(json)));
-  }
-});
+function encodePayload(obj){
+  const json = JSON.stringify(obj);
+  return btoa(unescape(encodeURIComponent(json)));
+}
+
 </script>
 
 
