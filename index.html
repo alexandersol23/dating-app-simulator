@@ -275,9 +275,19 @@ window.addEventListener("DOMContentLoaded", () => {
     (rawTarget === "women" || rawTarget === "female" || rawTarget === "woman") ? "women" :
     "women";
 
-  const returnUrl =
-  params.get("return") ||
-  "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_aYlPiuJs9NlkRgi";
+  document.getElementById("continueBtn").addEventListener("click", () => {
+  const payloadObj = {
+    cond,
+    target,
+    responses
+  };
+
+  const payload = encodePayload(payloadObj);
+  const joiner = returnUrl.includes("?") ? "&" : "?";
+
+  window.location.href =
+    returnUrl + joiner + "payload=" + encodeURIComponent(payload);
+});
 
   const isActive = cond.startsWith("active");
   const isHigh = cond.endsWith("high");
