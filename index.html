@@ -274,34 +274,13 @@ window.addEventListener("DOMContentLoaded", () => {
     (rawTarget === "men" || rawTarget === "male" || rawTarget === "man") ? "men" :
     (rawTarget === "women" || rawTarget === "female" || rawTarget === "woman") ? "women" :
     "women";
+  
+  const returnUrl =
+  params.get("return") ||
+  "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_aYlPiuJs9NlkRgi";
 
   const continueBtn = document.getElementById("continueBtn");
 
-if (!continueBtn) {
-  console.error("ERROR: continueBtn not found in DOM.");
-} else {
-  continueBtn.addEventListener("click", () => {
-    try {
-      console.log("Continue clicked.");
-
-      const payloadObj = { cond, target, responses };
-      const payload = encodePayload(payloadObj);
-
-      // Helpful debug: see if URL is getting insanely long
-      console.log("Payload length:", payload.length);
-
-      const joiner = returnUrl.includes("?") ? "&" : "?";
-      const dest = returnUrl + joiner + "payload=" + encodeURIComponent(payload);
-
-      console.log("Redirecting to:", dest);
-
-      window.location.href = dest;
-    } catch (e) {
-      console.error("ERROR during continue redirect:", e);
-      alert("Something went wrong sending you back to the survey. Please screenshot the console error and send it to the researcher.");
-    }
-  });
-}
   const isActive = cond.startsWith("active");
   const isHigh = cond.endsWith("high");
   function renderIntroInstructions() {
