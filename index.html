@@ -264,7 +264,8 @@
 <script>
 window.addEventListener("DOMContentLoaded", () => {
   // ---- 1) Config ----
-  const params = new URLSearchParams(location.search);
+  const params = new URLSearchParams(window.location.search);
+const returnUrl = params.get("return") || "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_aYlPiuJs9NlkRgi?task_done=1";
 
   const cond = (params.get("cond") || "active_high").toLowerCase().trim(); // active_high / active_low / passive_high / passive_low
 
@@ -551,17 +552,17 @@ const INBOX_REPLIES_BASE = isHigh
   });
 
   document.getElementById("continueBtn").addEventListener("click", () => {
-  const payloadObj = {
-    cond,
-    target,
-    responses
-  };
-
+  const payloadObj = { cond, target, responses };
   const payload = encodePayload(payloadObj);
-  const joiner = returnUrl.includes("?") ? "&" : "?";
 
-  window.location.href =
-    returnUrl + joiner + "payload=" + encodeURIComponent(payload);
+  // Build return URL safely and guarantee task_done=1
+  const u = new URL(returnUrl);
+  if (!u.searchParams.has("task_done")) u.searchParams.set("task_done", "1");
+
+  // Attach payload
+  u.searchParams.set("payload", payload);
+
+  window.location.href = u.toString();
 });
 
   function escapeHtml(str) {
