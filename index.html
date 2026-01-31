@@ -565,7 +565,7 @@ document.getElementById("continueBtn").addEventListener("click", () => {
 
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, s => ({
-    "&":"&amp;", "<":"&lt;", ">":"&lt;", '"':"&quot;", "'":"&#39;"
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
   }[s]));
 }
 
@@ -574,7 +574,10 @@ function encodePayload(obj){
   return btoa(unescape(encodeURIComponent(json)));
 }
 
+}); // <-- ADD THIS to close DOMContentLoaded
+
 </script>
+
 
 
 </body>
