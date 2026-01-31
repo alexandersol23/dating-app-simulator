@@ -264,26 +264,28 @@
 <script>
 window.addEventListener("DOMContentLoaded", () => {
   // ---- 1) Config ----
-  const params = new URLSearchParams(window.location.search);
-const returnUrl = params.get("return") || "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_aYlPiuJs9NlkRgi?task_done=1";
+  // ---- 1) Config ----
+const params = new URLSearchParams(window.location.search);
 
-  const cond = (params.get("cond") || "active_high").toLowerCase().trim(); // active_high / active_low / passive_high / passive_low
-
-  // Robust target parsing (accept men/male/man; women/female/woman)
-  const rawTarget = (params.get("target") || "women").toLowerCase().trim();
-  const target =
-    (rawTarget === "men" || rawTarget === "male" || rawTarget === "man") ? "men" :
-    (rawTarget === "women" || rawTarget === "female" || rawTarget === "woman") ? "women" :
-    "women";
-  
-  const returnUrl =
+// Use NEW Qualtrics survey as fallback return (Project B)
+const returnUrl =
   params.get("return") ||
-  "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_aYlPiuJs9NlkRgi";
+  "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_6zlVRrKO0yaAZCK";
 
-  const continueBtn = document.getElementById("continueBtn");
+const cond = (params.get("cond") || "active_high").toLowerCase().trim();
 
-  const isActive = cond.startsWith("active");
-  const isHigh = cond.endsWith("high");
+// Robust target parsing (accept men/male/man; women/female/woman)
+const rawTarget = (params.get("target") || "women").toLowerCase().trim();
+const target =
+  (rawTarget === "men" || rawTarget === "male" || rawTarget === "man") ? "men" :
+  (rawTarget === "women" || rawTarget === "female" || rawTarget === "woman") ? "women" :
+  "women";
+
+const continueBtn = document.getElementById("continueBtn");
+
+const isActive = cond.startsWith("active");
+const isHigh = cond.endsWith("high");
+
   function renderIntroInstructions() {
   const titleEl = document.getElementById("introTitle");
   const bodyEl  = document.getElementById("introBody");
@@ -555,9 +557,11 @@ const INBOX_REPLIES_BASE = isHigh
   const payloadObj = { cond, target, responses };
   const payload = encodePayload(payloadObj);
 
-  // Build return URL safely and guarantee task_done=1
   const u = new URL(returnUrl);
-  if (!u.searchParams.has("task_done")) u.searchParams.set("task_done", "1");
+  u.searchParams.set("payload", payload);
+
+  window.location.href = u.toString();
+});
 
   // Attach payload
   u.searchParams.set("payload", payload);
