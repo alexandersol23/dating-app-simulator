@@ -564,11 +564,6 @@ const INBOX_REPLIES_BASE = isHigh
 });
 
   // Attach payload
-  u.searchParams.set("payload", payload);
-
-  window.location.href = u.toString();
-});
-
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, s => ({
       "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
