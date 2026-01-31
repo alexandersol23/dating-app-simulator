@@ -188,18 +188,14 @@
   <!-- INSTRUCTION VIEW (new) -->
 <div id="introView">
   <div style="padding:14px;">
-    <div style="font-weight:900; font-size:18px; margin-bottom:10px;">
-      Dating App Messaging Simulation
-    </div>
+    <div id="introTitle" style="font-weight:900; font-size:18px; margin-bottom:10px;">
+  Dating App Simulation
+</div>
 
-    <div style="font-size:13px; line-height:1.4; opacity:.9;">
-      You will see a series of profiles. For <strong>each profile</strong>, send <strong>one message</strong>.
-      Your message must be <strong>at least one complete sentence</strong>, and should be based on what you see
-      (photo, bio, age). Anything is okay as long as it feels natural.
-      <br><br>
-      To make this realistic, write as if the person may read your message.
-      After you message everyone, you’ll see an inbox screen with <strong>imagined replies</strong> as feedback.
-    </div>
+<div id="introBody" style="font-size:13px; line-height:1.4; opacity:.9;">
+  <!-- This text will be filled by JavaScript based on condition -->
+</div>
+
 
     <button id="startBtn" type="button" class="enabled" style="opacity:1; cursor:pointer; margin-top:14px;"
       onclick="
@@ -290,6 +286,37 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const isActive = cond.startsWith("active");
   const isHigh = cond.endsWith("high");
+  function renderIntroInstructions() {
+  const titleEl = document.getElementById("introTitle");
+  const bodyEl  = document.getElementById("introBody");
+
+  if (!titleEl || !bodyEl) return;
+
+  if (isActive) {
+    // ACTIVE (messaging) instructions
+    titleEl.textContent = "Dating App Messaging Simulation";
+    bodyEl.innerHTML = `
+      You will see a series of profiles. For <strong>each profile</strong>, send <strong>one message</strong>.
+      Your message must be <strong>at least one complete sentence</strong>, and should be based on what you see
+      (photo, bio, age). Anything is okay as long as it feels natural.
+      <br><br>
+      To make this realistic, write as if the person may read your message.
+      After you message everyone, you’ll see an inbox screen with <strong>imagined replies</strong> as feedback.
+    `;
+  } else {
+    // PASSIVE (swiping) instructions
+    titleEl.textContent = "Dating App Swiping Simulation";
+    bodyEl.innerHTML = `
+      You will see a series of profiles. For <strong>each profile</strong>, choose <strong>Swipe Left</strong>
+      or <strong>Swipe Right</strong> based on your immediate impression.
+      <br><br>
+      There is <strong>no messaging</strong> in this version of the simulation.
+      After you finish viewing everyone, you’ll see an inbox screen with <strong>imagined feedback</strong>.
+      <br><br>
+      Please make one swipe decision per profile to continue.
+    `;
+  }
+}
 
   // Researcher-only debug (does NOT show to participants)
   console.log("cond =", cond, "rawTarget =", rawTarget, "normalized target =", target);
@@ -384,6 +411,7 @@ const INBOX_REPLIES_BASE = isHigh
   const swipeRightBtn= document.getElementById("swipeRightBtn");
 
   const startBtn = document.getElementById("startBtn");
+  renderIntroInstructions();
 
   function setupModeUI(){
     if (isActive){
