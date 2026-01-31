@@ -251,9 +251,9 @@
       <div id="threads"></div>
 
       <div class="panel">
-        <button id="continueBtn" class="enabled" style="opacity:1; cursor:pointer; margin-top:0;">
-      Continue the Study
-      </button>
+       <button id="continueBtn" type="button" class="enabled" style="opacity:1; cursor:pointer; margin-top:0;">
+  Continue the Study
+</button>
 
         <div class="hint">You can now continue to the next part of the study.</div>
       </div>
@@ -275,20 +275,33 @@ window.addEventListener("DOMContentLoaded", () => {
     (rawTarget === "women" || rawTarget === "female" || rawTarget === "woman") ? "women" :
     "women";
 
-  document.getElementById("continueBtn").addEventListener("click", () => {
-  const payloadObj = {
-    cond,
-    target,
-    responses
-  };
+  const continueBtn = document.getElementById("continueBtn");
 
-  const payload = encodePayload(payloadObj);
-  const joiner = returnUrl.includes("?") ? "&" : "?";
+if (!continueBtn) {
+  console.error("ERROR: continueBtn not found in DOM.");
+} else {
+  continueBtn.addEventListener("click", () => {
+    try {
+      console.log("Continue clicked.");
 
-  window.location.href =
-    returnUrl + joiner + "payload=" + encodeURIComponent(payload);
-});
+      const payloadObj = { cond, target, responses };
+      const payload = encodePayload(payloadObj);
 
+      // Helpful debug: see if URL is getting insanely long
+      console.log("Payload length:", payload.length);
+
+      const joiner = returnUrl.includes("?") ? "&" : "?";
+      const dest = returnUrl + joiner + "payload=" + encodeURIComponent(payload);
+
+      console.log("Redirecting to:", dest);
+
+      window.location.href = dest;
+    } catch (e) {
+      console.error("ERROR during continue redirect:", e);
+      alert("Something went wrong sending you back to the survey. Please screenshot the console error and send it to the researcher.");
+    }
+  });
+}
   const isActive = cond.startsWith("active");
   const isHigh = cond.endsWith("high");
   function renderIntroInstructions() {
