@@ -197,14 +197,8 @@
 </div>
 
 
-    <button id="startBtn" type="button" class="enabled" style="opacity:1; cursor:pointer; margin-top:14px;"
-      onclick="
-    document.getElementById('introView').style.display='none';
-    document.getElementById('profileView').style.display='block';
-    if (typeof setupModeUI==='function') setupModeUI();
-    if (typeof loadProfile==='function') loadProfile();
-  "
->
+   <button id="startBtn" type="button" class="enabled"
+  style="opacity:1; cursor:pointer; margin-top:14px;">
   Start
 </button>
 
@@ -282,7 +276,8 @@ window.addEventListener("DOMContentLoaded", () => {
     "women";
 
   const returnUrl =
-  "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_8p4wD7wS8EwXMns";
+  params.get("return") ||
+  "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_aYlPiuJs9NlkRgi";
 
   const isActive = cond.startsWith("active");
   const isHigh = cond.endsWith("high");
@@ -554,8 +549,17 @@ const INBOX_REPLIES_BASE = isHigh
   });
 
   document.getElementById("continueBtn").addEventListener("click", () => {
+  const payloadObj = {
+    cond,
+    target,
+    responses
+  };
+
+  const payload = encodePayload(payloadObj);
+  const joiner = returnUrl.includes("?") ? "&" : "?";
+
   window.location.href =
-    "https://qualtricsxmp86xgb4gq.qualtrics.com/jfe/form/SV_8p4wD7wS8EwXMns";
+    returnUrl + joiner + "payload=" + encodeURIComponent(payload);
 });
 
   function escapeHtml(str) {
