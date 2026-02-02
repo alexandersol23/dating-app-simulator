@@ -531,19 +531,32 @@ const INBOX_REPLIES_BASE = isHigh
     repliesToShow.forEach((r) => {
       const div = document.createElement("div");
       div.className = "thread";
-      div.innerHTML = `
-        <div class="avatar"><div class="dot red"></div></div>
-        <div class="threadBody">
-          <div class="threadTop">
-            <div class="threadName">${escapeHtml(r.name)}</div>
-            <div class="threadTime">${escapeHtml(r.time)}</div>
-          </div>
-          <div class="threadMsg">${escapeHtml(r.msg)}</div>
-        </div>
-      `;
+     const prof = PROFILES.find(p => p.name === r.name);
+
+div.innerHTML = `
+  <div class="avatar">
+    <img src="${prof?.img || ''}" alt="${escapeHtml(r.name)}">
+    <div class="dot red"></div>
+  </div>
+  <div class="threadBody">
+    <div class="threadTop">
+      <div class="threadName">${escapeHtml(r.name)}</div>
+      <div class="threadTime">${escapeHtml(r.time)}</div>
+    </div>
+    <div class="threadMsg">${escapeHtml(r.msg)}</div>
+  </div>
+`;
       threads.appendChild(div);
     });
   }
+
+  .avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:50%;
+  display:block;
+}
 
   // Start button: JS version (you can remove inline onclick after this works)
  startBtn.addEventListener("click", () => {
