@@ -103,9 +103,17 @@
   width:42px;
   height:42px;
   border-radius:50%;
-  background:#e0e0e0; /* placeholder circle */
+  background:#e0e0e0;
   flex-shrink:0;
   position:relative;
+  overflow:hidden; /* IMPORTANT */
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
 }
 
 .dot{
@@ -507,7 +515,7 @@ const INBOX_REPLIES_BASE = isHigh
     if (!isActive && isHigh) {
       const rightSet = getRightSwipesSet();
       repliesToShow = INBOX_REPLIES_BASE.filter(r => {
-        const prof = PROFILES.find(p => p.name === r.name);
+const prof = PROFILES.find(p => (p.name || "").trim() === (r.name || "").trim());
         return prof && rightSet.has(prof.id);
       });
     }
@@ -549,14 +557,6 @@ div.innerHTML = `
       threads.appendChild(div);
     });
   }
-
-  .avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  border-radius:50%;
-  display:block;
-}
 
   // Start button: JS version (you can remove inline onclick after this works)
  startBtn.addEventListener("click", () => {
