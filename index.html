@@ -366,6 +366,8 @@ const isHigh = cond.endsWith("high");
   ];
 
   const PROFILES = (target === "men") ? PROFILES_MEN : PROFILES_WOMEN;
+  const normName = (s) => String(s || "").trim().toLowerCase();
+const profileByName = new Map(PROFILES.map(p => [normName(p.name), p]));
 
   // ---- 3) Inbox replies ----
   const HIGH_REPLIES_MEN = [
@@ -515,7 +517,7 @@ const INBOX_REPLIES_BASE = isHigh
     if (!isActive && isHigh) {
       const rightSet = getRightSwipesSet();
       repliesToShow = INBOX_REPLIES_BASE.filter(r => {
-const prof = PROFILES.find(p => (p.name || "").trim() === (r.name || "").trim());
+const prof = profileByName.get(normName(r.name));
         return prof && rightSet.has(prof.id);
       });
     }
@@ -537,25 +539,28 @@ const prof = PROFILES.find(p => (p.name || "").trim() === (r.name || "").trim())
     }
 
     repliesToShow.forEach((r) => {
-      const div = document.createElement("div");
-      div.className = "thread";
-     const prof = PROFILES.find(p => p.name === r.name);
+  const div = document.createElement("div");
+  div.className = "thread";
 
-div.innerHTML = `
-  <div class="avatar">
-    <img src="${prof?.img || ''}" alt="${escapeHtml(r.name)}">
-    <div class="dot red"></div>
-  </div>
-  <div class="threadBody">
-    <div class="threadTop">
-      <div class="threadName">${escapeHtml(r.name)}</div>
-      <div class="threadTime">${escapeHtml(r.time)}</div>
+  const prof = profileByName.get(normName(r.name));
+  if (!prof) console.warn("No matching profile for reply:", r.name);
+
+  div.innerHTML = `
+    <div class="avatar">
+      <img src="${prof?.img || ""}" alt="${escapeHtml(r.name)}"
+           onerror="console.warn('Avatar failed to load:', this.src); this.style.display='none';">
+      <div class="dot red"></div>
     </div>
-    <div class="threadMsg">${escapeHtml(r.msg)}</div>
-  </div>
-`;
-      threads.appendChild(div);
-    });
+    <div class="threadBody">
+      <div class="threadTop">
+        <div class="threadName">${escapeHtml(r.name)}</div>
+        <div class="threadTime">${escapeHtml(r.time)}</div>
+      </div>
+      <div class="threadMsg">${escapeHtml(r.msg)}</div>
+    </div>
+  `;
+  threads.appendChild(div);
+});
   }
 
   // Start button: JS version (you can remove inline onclick after this works)
