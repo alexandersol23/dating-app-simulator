@@ -514,6 +514,7 @@ const INBOX_REPLIES_BASE = isHigh
 
     const threads = document.getElementById("threads");
     threads.innerHTML = "";
+    threads.innerHTML = "<div style='padding:12px;'>INBOX DEBUG: showInbox() is running</div>";
 
     let repliesToShow = INBOX_REPLIES_BASE;
 
@@ -546,23 +547,28 @@ const prof = profileByName.get(normName(r.name));
   const div = document.createElement("div");
   div.className = "thread";
 
+  // ✅ define prof HERE (this was missing)
+  const prof = profileByName.get(normName(r.name));
+
   if (!prof) console.warn("No matching profile for reply:", r.name);
 
- div.innerHTML = `
-  <div class="avatar">
-    <img src="https://placehold.co/300x300/png" alt="test">
-    <div class="dot red"></div>
-  </div>
-  <div class="threadBody">
-    <div class="threadTop">
-      <div class="threadName">${escapeHtml(r.name)}</div>
-      <div class="threadTime">${escapeHtml(r.time)}</div>
+  div.innerHTML = `
+    <div class="avatar">
+      <img src="${prof ? prof.img : 'https://placehold.co/300x300/png'}" alt="${escapeHtml(r.name)}">
+      <div class="dot red"></div>
     </div>
-    <div class="threadMsg">${escapeHtml(r.msg)}</div>
-  </div>
-`;
+    <div class="threadBody">
+      <div class="threadTop">
+        <div class="threadName">${escapeHtml(r.name)}</div>
+        <div class="threadTime">${escapeHtml(r.time)}</div>
+      </div>
+      <div class="threadMsg">${escapeHtml(r.msg)}</div>
+    </div>
+  `;
+
   threads.appendChild(div);
 });
+
   }
 
   // Start button: JS version (you can remove inline onclick after this works)
