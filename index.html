@@ -106,7 +106,6 @@
   background:#e0e0e0;
   flex-shrink:0;
   position:relative;
-  overflow:hidden; /* IMPORTANT */
 }
 
 .avatar img{
@@ -114,6 +113,7 @@
   height:100%;
   object-fit:cover;
   display:block;
+  border-radius:50%;
 }
 
 .dot{
@@ -121,10 +121,11 @@
   height:10px;
   border-radius:50%;
   position:absolute;
-  bottom:-2px;
-  right:-2px;
+  bottom:-4px;   /* push outside */
+  right:-4px;    /* push outside */
   border:2px solid #fff;
-  z-index:2;
+  z-index:3;     /* above everything */
+  box-shadow:0 0 0 1px rgba(0,0,0,.05);
 }
 
 .dot.blue{ background:#2d6cdf; }
