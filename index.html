@@ -582,9 +582,9 @@ document.getElementById("continueBtn").addEventListener("click", () => {
   const payload = encodePayload(payloadObj);
 
   const u = new URL(returnUrl);
-  u.searchParams.set("payload", payload);
-
-  window.location.href = u.toString();
+u.searchParams.set("payload", payload);
+if (rid) u.searchParams.set("rid", rid);
+window.location.href = u.toString();
 });
 
 function escapeHtml(str) {
