@@ -276,6 +276,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // ---- 1) Config ----
   // ---- 1) Config ----
 const params = new URLSearchParams(window.location.search);
+const rid = params.get("rid") || "";
 
 // Use NEW Qualtrics survey as fallback return (Project B)
 const returnUrl =
