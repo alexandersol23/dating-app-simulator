@@ -581,9 +581,14 @@ document.getElementById("continueBtn").addEventListener("click", () => {
   const payloadObj = { cond, target, responses };
   const payload = encodePayload(payloadObj);
 
-  const u = new URL(returnUrl);
+ const u = new URL(returnUrl);
 u.searchParams.set("payload", payload);
 if (rid) u.searchParams.set("rid", rid);
+
+// ADD THESE TWO LINES:
+u.searchParams.set("cond", cond);
+u.searchParams.set("target", target);
+
 window.location.href = u.toString();
 });
 
