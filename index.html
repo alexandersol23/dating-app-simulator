@@ -400,9 +400,20 @@ const INBOX_REPLIES_BASE = isHigh
 
 
   // ---- 4) State / Elements ----
-  let idx = 0;
-  const responses = {};
-  let profileStartTs = null;
+  // ---- 4) State / Elements ----
+let idx = 0;
+const responses = {};
+let profileStartTs = null;
+
+// ✅ NEW: behavior + exposure tracking
+let simStartTs = null;
+let simEndTs = null;
+
+let rightSwipes = 0;
+let leftSwipes  = 0;
+
+// how many replies were actually shown on the inbox screen
+let responsesReceived = 0;
 
   const introView   = document.getElementById("introView");
   const profileView = document.getElementById("profileView");
@@ -478,13 +489,18 @@ const INBOX_REPLIES_BASE = isHigh
   });
 
   function recordSwipe(choice){
-    const p = PROFILES[idx];
-    responses[`tstart_${p.id}`] = profileStartTs;
-    responses[`tdwell_${p.id}`] = profileStartTs ? (Date.now() - profileStartTs) : "";
-    responses[`swipe_${p.id}`] = choice;
-    responses[`msg_${p.id}`] = "";
-    advanceAfterProfile();
-  }
+  const p = PROFILES[idx];
+  responses[`tstart_${p.id}`] = profileStartTs;
+  responses[`tdwell_${p.id}`] = profileStartTs ? (Date.now() - profileStartTs) : "";
+  responses[`swipe_${p.id}`] = choice;
+  responses[`msg_${p.id}`] = "";
+
+  // ✅ NEW: count swipes
+  if (choice === "right") rightSwipes++;
+  if (choice === "left")  leftSwipes++;
+
+  advanceAfterProfile();
+}
 
   swipeLeftBtn.addEventListener("click", () => {
     if (isActive) return;
@@ -527,6 +543,9 @@ const prof = profileByName.get(normName(r.name));
 
     const badge = document.getElementById("badgeCount");
     const n = repliesToShow.length;
+    // ✅ NEW: store how many responses participant actually received
+responsesReceived = n;
+
 
     if (badge) {
       badge.style.display = n === 0 ? "none" : "inline-block";
@@ -571,6 +590,9 @@ const prof = profileByName.get(normName(r.name));
 
   // Start button: JS version (you can remove inline onclick after this works)
  startBtn.addEventListener("click", () => {
+  // ✅ NEW: start timer
+  simStartTs = Date.now();
+
   introView.style.display = "none";
   profileView.style.display = "block";
   setupModeUI();
@@ -578,18 +600,34 @@ const prof = profileByName.get(normName(r.name));
 });
 
 document.getElementById("continueBtn").addEventListener("click", () => {
+  // ✅ end timer
+  simEndTs = Date.now();
+  const timeInSimSeconds = simStartTs ? Math.round((simEndTs - simStartTs) / 1000) : "";
+
+  // ✅ profiles viewed: you always force 1 decision/message per profile, so it's the full length
+  const profilesViewed = PROFILES.length;
+
   const payloadObj = { cond, target, responses };
   const payload = encodePayload(payloadObj);
 
- const u = new URL(returnUrl);
-u.searchParams.set("payload", payload);
-if (rid) u.searchParams.set("rid", rid);
+  const u = new URL(returnUrl);
 
-// ADD THESE TWO LINES:
-u.searchParams.set("cond", cond);
-u.searchParams.set("target", target);
+  // existing payload
+  u.searchParams.set("payload", payload);
+  if (rid) u.searchParams.set("rid", rid);
 
-window.location.href = u.toString();
+  // keep these (useful for debugging / QA)
+  u.searchParams.set("cond", cond);
+  u.searchParams.set("target", target);
+
+  // ✅ NEW: behavioral/exposure metrics for Qualtrics export
+  u.searchParams.set("profiles_viewed", String(profilesViewed));
+  u.searchParams.set("right_swipes", String(rightSwipes));
+  u.searchParams.set("left_swipes", String(leftSwipes));
+  u.searchParams.set("responses_received", String(responsesReceived));
+  u.searchParams.set("time_in_sim_seconds", String(timeInSimSeconds));
+
+  window.location.href = u.toString();
 });
 
 function escapeHtml(str) {
