@@ -398,22 +398,27 @@ const INBOX_REPLIES_BASE = isHigh
   ? (target === "men" ? HIGH_REPLIES_MEN : HIGH_REPLIES_WOMEN)
   : LOW_REPLIES;
 
-
-  // ---- 4) State / Elements ----
-  // ---- 4) State / Elements ----
+ // ---- 4) State / Elements ----
 let idx = 0;
 const responses = {};
 let profileStartTs = null;
 
-// ✅ NEW: behavior + exposure tracking
+// ✅ NEW: overall timer
 let simStartTs = null;
 let simEndTs = null;
 
+// ✅ NEW: swipe counts (passive condition)
 let rightSwipes = 0;
 let leftSwipes  = 0;
 
-// how many replies were actually shown on the inbox screen
+// ✅ NEW: how many replies were actually shown in inbox
 let responsesReceived = 0;
+
+// ✅ NEW: message metrics (active condition)
+let msgTotalChars = 0;
+let msgAvgChars = 0;
+let msgUniqueCount = 0;
+let msgShortCount = 0; // <= 5 chars
 
   const introView   = document.getElementById("introView");
   const profileView = document.getElementById("profileView");
@@ -592,7 +597,6 @@ responsesReceived = n;
  startBtn.addEventListener("click", () => {
   // ✅ NEW: start timer
   simStartTs = Date.now();
-
   introView.style.display = "none";
   profileView.style.display = "block";
   setupModeUI();
@@ -606,6 +610,7 @@ document.getElementById("continueBtn").addEventListener("click", () => {
 
   // ✅ profiles viewed: you always force 1 decision/message per profile, so it's the full length
   const profilesViewed = PROFILES.length;
+  computeMessageMetrics(); // ✅ NEW: compute message stats before redirect
 
   const payloadObj = { cond, target, responses };
   const payload = encodePayload(payloadObj);
@@ -627,9 +632,40 @@ document.getElementById("continueBtn").addEventListener("click", () => {
   u.searchParams.set("responses_received", String(responsesReceived));
   u.searchParams.set("time_in_sim_seconds", String(timeInSimSeconds));
 
+  // ✅ NEW: message metrics (active condition; will be 0 in passive)
+u.searchParams.set("msg_total_chars", String(msgTotalChars));
+u.searchParams.set("msg_avg_chars", String(msgAvgChars));
+u.searchParams.set("msg_unique_count", String(msgUniqueCount));
+u.searchParams.set("msg_short_count", String(msgShortCount));
+
   window.location.href = u.toString();
 });
 
+function computeMessageMetrics(){
+  // Only meaningful for active condition
+  if (!isActive) {
+    msgTotalChars = 0;
+    msgAvgChars = 0;
+    msgUniqueCount = 0;
+    msgShortCount = 0;
+    return;
+  }
+
+  const msgs = [];
+  PROFILES.forEach(p => {
+    const m = (responses[`msg_${p.id}`] || "").trim();
+    if (m.length > 0) msgs.push(m);
+  });
+
+  msgTotalChars = msgs.reduce((sum, m) => sum + m.length, 0);
+  msgAvgChars = msgs.length ? Math.round(msgTotalChars / msgs.length) : 0;
+
+  const norm = (s) => s.toLowerCase().replace(/\s+/g, " ").trim();
+  msgUniqueCount = new Set(msgs.map(norm)).size;
+
+  msgShortCount = msgs.filter(m => m.length <= 5).length;
+}
+  
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, s => ({
     "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
