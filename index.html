@@ -560,10 +560,12 @@ let msgShortCount = 0; // <= 5 chars
   }
 
   function advanceAfterProfile(){
-    idx++;
-    if (idx < PROFILES.length) loadProfile();
-   else showLoadingScreen();
-     }
+  idx++;
+  if (idx < PROFILES.length) {
+    loadProfile();
+  } else {
+    showLoadingScreen();
+  }
 }
 
   // Active: enable button for ANY non-empty text
